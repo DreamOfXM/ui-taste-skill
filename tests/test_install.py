@@ -2,6 +2,7 @@ import contextlib
 import importlib.util
 import io
 import json
+import shutil
 from pathlib import Path
 import tempfile
 import unittest
@@ -42,7 +43,8 @@ class InstallTests(unittest.TestCase):
         self.assertEqual((self.target / 'SKILL.md').read_text(), 'new')
         self.assertEqual((backup / 'SKILL.md').read_text(), 'old')
         self.assertIsNone(installer.install(self.repo, self.target, apply=True))
-        self.assertEqual(len(list(self.target.parent.glob('*.backup-*'))), 1)
+        self.assertEqual(len(list(installer.backup_root(self.target).glob('*.backup-*'))), 1)
+        self.assertEqual(list(self.target.parent.glob('*.backup-*')), [])
         installer.restore(self.repo, self.target, backup)
         self.assertTrue(self.target.is_symlink())
         installer.restore(self.repo, self.target, backup, apply=True)
@@ -106,6 +108,23 @@ class InstallTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             installer.install(self.repo, self.target, apply=True)
         self.assertEqual((self.target / 'SKILL.md').read_text(), 'old')
+
+    def test_existing_link_archives_legacy_backup_outside_discovery(self):
+        legacy = self.target.with_name(self.target.name + '.backup-legacy')
+        shutil.copytree(self.target, legacy)
+        installer.install(self.repo, self.target, apply=True)
+        archived = installer.backup_root(self.target) / legacy.name
+        self.assertFalse(legacy.exists())
+        self.assertEqual((archived / 'SKILL.md').read_text(), 'old')
+        # Recreate a legacy backup to exercise upgrade of an existing symlink.
+        shutil.copytree(archived, legacy)
+        archived.rename(archived.with_name(archived.name + '-previous'))
+        installer.install(self.repo, self.target)
+        self.assertTrue(legacy.is_dir())
+        installer.install(self.repo, self.target, apply=True)
+        self.assertFalse(legacy.exists())
+        self.assertEqual((archived / 'SKILL.md').read_text(), 'old')
+        self.assertEqual(self.target.resolve(), self.repo)
 
 
 if __name__ == '__main__':
