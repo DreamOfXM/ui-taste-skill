@@ -1,0 +1,22 @@
+{
+  "name": "ui-design-router",
+  "version": "1.1.1",
+  "author": "DreamOfXM",
+  "description": "UI 设计路由层：按意图分发命令，跑闸门产数字结论",
+  "trigger_words": [
+    "帮我设计这个界面",
+    "改版这个页面",
+    "检查设计是否合理",
+    "给我新方案对比",
+    "优化这个屏",
+    "设计评审",
+    "UI 走查",
+    "哪里不对"
+  ],
+  "tags": [
+    "ui",
+    "design",
+    "workflow",
+    "routing"
+  ]
+}

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>变体画板 — 结构对比（ui-design-router）</title>
+<style>
+  body { margin:0; font:12px/1.5 ui-monospace,Menlo,monospace; background:#141414; color:#ccc; }
+  header { padding:8px 14px; display:flex; gap:14px; align-items:baseline; }
+  header b { color:#fff; font-weight:600; }
+  header span { opacity:.55; }
+  #board { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:10px; height:calc(100vh - 40px); }
+  .art { display:flex; flex-direction:column; border:1px solid #333; border-radius:6px; overflow:hidden; background:#fff; min-width:0; }
+  .art.zen { position:fixed; inset:10px; z-index:9; height:auto; }
+  .bar { display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:#222; color:#ddd; flex:none; }
+  .bar button { background:#3a3a3a; color:#eee; border:0; border-radius:4px; padding:1px 10px; cursor:pointer; font:inherit; }
+  .art iframe { flex:1; width:100%; border:0; min-height:0; }
+</style>
+</head>
+<body>
+<header><b>变体画板</b><span>结构互异对比 · 用法 ?a=骨架1.html&amp;b=骨架2.html&amp;c=骨架3.html · 专注键全屏单看</span></header>
+<div id="board">
+  <div class="art"><div class="bar"><b>A</b><button>专注</button></div><iframe id="fa" src="a.html"></iframe></div>
+  <div class="art"><div class="bar"><b>B</b><button>专注</button></div><iframe id="fb" src="b.html"></iframe></div>
+  <div class="art"><div class="bar"><b>C</b><button>专注</button></div><iframe id="fc" src="c.html"></iframe></div>
+</div>
+<script>
+  const q = new URLSearchParams(location.search);
+  for (const [id, k] of [['fa','a'],['fb','b'],['fc','c']]) {
+    const src = q.get(k);
+    if (src) document.getElementById(id).src = src;
+  }
+  document.querySelectorAll('.art button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const art = btn.closest('.art');
+      art.classList.toggle('zen');
+      btn.textContent = art.classList.contains('zen') ? '返回' : '专注';
+    });
+  });
+</script>
+</body>
+</html>
