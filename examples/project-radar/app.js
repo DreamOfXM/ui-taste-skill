@@ -7,6 +7,7 @@
   const esc = text => String(text ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const sourceNames = {github:'GitHub',hackernews:'Hacker News',producthunt:'Product Hunt',appstore:'App Store',devto:'dev.to',huggingface_model:'Hugging Face',huggingface_space:'Hugging Face',umbrella:'种子目录'};
   const sourceText = p => p.sources.map(s => sourceNames[s] || s).join(' · ') || '来源待补充';
+  const hasCommercial = p => p.mechanisms.some(m => ['checkout_present','pricing_present','ads_active','donation_present'].includes(m.kind));
   const hasPayment = p => p.mechanisms.some(m => m.kind === 'checkout_present');
   const statusText = p => hasPayment(p) ? '采集到支付入口' : ({not_checked:'尚未探测',unknown_incomplete:'探测不完整',checked_no_evidence:'未发现收费证据',positive_evidence:'有其他商业线索'}[p.moneyStatus] || '收费状态待核实');
   const bookmark = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4Z"/></svg>';
@@ -52,10 +53,13 @@
   $('#feature').innerHTML=`<div class="feature-art">${shaderArt()}</div><div class="feature-content"><p class="eyebrow">本期关注 <span>／ ${esc(feature.category)}</span></p><h2>${esc(feature.name)}</h2><h3>${esc(feature.headline)}</h3><p class="feature-description">${esc(feature.description)}</p><div class="feature-actions"><button class="primary" data-open="${esc(feature.id)}">打开项目观察 <span>↗</span></button>${saveButton(feature,'icon-button feature-save')}</div></div><span class="art-caption">WebGPU 视觉语言 · 概念示意</span>`;
   const picks=['atelier','standup','themes'].map(key=>projects.find(p=>p.art===key)).filter(Boolean);
   $('#curated-grid').innerHTML=picks.map(p=>`<article class="product-card"><div class="card-art art-${p.art}">${art(p.art)}</div><div class="card-body"><div class="card-top"><h3><button data-open="${esc(p.id)}">${esc(p.name)}</button></h3>${saveButton(p,'icon-button card-save')}</div><p class="card-description">${esc(p.description)}</p><div class="card-meta"><span><i class="tiny-dot"></i>${esc(p.category)}</span><span>${esc(statusText(p))}</span></div></div></article>`).join('');
+  const commercialCount=projects.filter(hasCommercial).length;
+  $('#commercial-summary').textContent=`本期 ${projects.length.toLocaleString('en-US')} 条记录中，${commercialCount} 个项目采集到商业线索，其中 ${projects.filter(hasPayment).length} 个命中了支付入口。`;
   $('#total-count').textContent=projects.length.toLocaleString('en-US');
   const categories=[...new Set(projects.map(p=>p.category))].sort((a,b)=>a.localeCompare(b,'zh-CN'));
   $('#category').innerHTML+=[...categories].map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
   function matches(p) {
+    if(state.filter==='commercial'&&!hasCommercial(p)) return false;
     if(state.filter==='payment'&&!hasPayment(p)) return false;
     if(state.filter==='github'&&!p.sources.includes('github')) return false;
     if(state.filter==='saved'&&!saved.has(p.id)) return false;
@@ -87,11 +91,15 @@
     detailTrigger=trigger;
     detailId=id;$('#detail-status').textContent='';
     const metrics=Object.entries(p.metrics).filter(([key])=>labels[key]).map(([key,value])=>`<div class="evidence-row"><span>${labels[key]}</span><strong>${Number(value).toLocaleString('en-US')}</strong></div>`).join('');
-    const paymentLabels=[...new Set(p.mechanisms.filter(m=>m.kind==='checkout_present').map(m=>m.label))].join(' · ');
+    const mechanismNames={checkout_present:'支付入口',pricing_present:'定价页面',ads_active:'广告线索',donation_present:'打赏入口'};
+    const mechanismRows=Object.entries(mechanismNames).filter(([kind])=>p.mechanisms.some(m=>m.kind===kind)).map(([kind,label])=>`<div class="evidence-row"><span>${label}</span><strong>${esc([...new Set(p.mechanisms.filter(m=>m.kind===kind).map(m=>m.label||label))].join(' · '))}</strong></div>`).join('');
+    const trend=p.trend;
+    const trendValues=trend?.values?.filter(v=>Number.isFinite(v))||[];
+    const trendRow=trendValues.length>1&&labels[trend.kind]?`<div class="evidence-row"><span>${labels[trend.kind]} · 最近两次记录</span><strong>${Number(trendValues.at(-2)).toLocaleString('en-US')} → ${Number(trendValues.at(-1)).toLocaleString('en-US')}</strong></div><p class="evidence-note">仅反映该指标的变化，不表示新增客户；快照未提供这两次记录各自的时间。</p>`:'';
     const seed=p.sources.length===1&&p.sources[0]==='umbrella';
     const note=p.note||'先了解产品的实际用途，再核对来源中的关注指标和收费机制。当前记录不包含客户交易或收入数据。';
     $('#detail-kicker').textContent=p.category+' / 项目观察';
-    $('#detail-content').innerHTML=`<div class="detail-grid"><div class="detail-main">${p.art?`<div class="detail-art">${art(p.art)}</div><p class="eyebrow">编辑概念示意 · 非产品截图</p>`:''}<h2 id="detail-title">${esc(p.name)}</h2><p>${esc(p.description||'当前采集记录没有用途介绍。')}</p><details class="original-copy"><summary>查看原始项目名称与简介</summary><p>${esc(p.originalName)}</p><p>${esc(p.originalDescription||'无原始简介')}</p></details><div class="detail-actions">${p.urls[0]?`<a class="primary" href="${esc(p.urls[0])}" target="_blank" rel="noopener noreferrer">打开来源 <span>↗</span></a>`:''}${saveButton(p,'',true)}</div><p class="detail-date">采集于 ${esc((p.lastSeen||data.generatedAt).replace('T',' ').slice(0,16))} UTC<br>记录来源：${esc(sourceText(p))}</p></div><div class="detail-evidence"><section class="detail-section"><h3>为什么放进观察清单</h3><p>${esc(note)}</p></section><section class="detail-section"><h3>目前有哪些证据</h3>${metrics||'<p>尚无可展示的独立公开关注指标。</p>'}<div class="evidence-row"><span>收费线索</span><strong>${esc(statusText(p))}</strong></div>${paymentLabels?`<div class="evidence-row"><span>记录命中的机制</span><strong>${esc(paymentLabels)}</strong></div>`:''}<p class="evidence-note">${seed?'此排名仅来自种子目录，不能作为独立流量或需求证据。':'公开关注指标和支付入口各有含义，不能合并成收入结论。'}</p>${hasPayment(p)?'<p class="evidence-note">支付标签来自采集记录，快照未保留具体命中页面或摘录，尚待复核。下方链接是项目来源。</p>':''}</section><section class="detail-unknown"><h3>还不知道的事</h3><p>是否有真实付费客户、收入规模与持续使用情况。本页没有验证这些信息。支付入口也需要回到原站确认。</p></section>${p.urls.map((url,i)=>`<a class="source-link" target="_blank" rel="noopener noreferrer" href="${esc(url)}">来源 ${i+1} · ${esc(new URL(url).hostname)} ↗</a>`).join('')}</div></div>`;
+    $('#detail-content').innerHTML=`<div class="detail-grid"><div class="detail-main">${p.art?`<div class="detail-art">${art(p.art)}</div><p class="eyebrow">编辑概念示意 · 非产品截图</p>`:''}<h2 id="detail-title">${esc(p.name)}</h2><p>${esc(p.description||'当前采集记录没有用途介绍。')}</p><details class="original-copy"><summary>查看原始项目名称与简介</summary><p>${esc(p.originalName)}</p><p>${esc(p.originalDescription||'无原始简介')}</p></details><div class="detail-actions">${p.urls[0]?`<a class="primary" href="${esc(p.urls[0])}" target="_blank" rel="noopener noreferrer">打开来源 <span>↗</span></a>`:''}${saveButton(p,'',true)}</div><p class="detail-date">采集于 ${esc((p.lastSeen||data.generatedAt).replace('T',' ').slice(0,16))} UTC<br>记录来源：${esc(sourceText(p))}</p></div><div class="detail-evidence"><section class="detail-section"><h3>为什么放进观察清单</h3><p>${esc(note)}</p></section><section class="detail-section"><h3>公开关注线索</h3>${metrics||'<p>尚无可展示的独立公开关注指标。</p>'}${trendRow}</section><section class="detail-section"><h3>可能靠什么变现</h3><div class="evidence-row"><span>采集状态</span><strong>${esc(statusText(p))}</strong></div>${mechanismRows}<p class="evidence-note">${seed?'此排名仅来自种子目录，不能作为独立流量或需求证据。':'公开关注指标和支付入口各有含义，不能合并成收入结论。'}</p>${hasCommercial(p)?'<p class="evidence-note">机制标签来自采集记录，快照未保留具体命中页面或摘录，尚待复核。下方链接是项目来源。</p>':''}</section><section class="detail-unknown"><h3>还需要验证什么</h3><p>是否有真实付费客户、收入规模与持续使用情况，本页均未验证。先打开来源核对收费对象与交付内容，再寻找客户反馈或可追溯的交易证据。</p></section>${p.urls.map((url,i)=>`<a class="source-link" target="_blank" rel="noopener noreferrer" href="${esc(url)}">来源 ${i+1} · ${esc(new URL(url).hostname)} ↗</a>`).join('')}</div></div>`;
     $('#detail').showModal();
     $('.close-detail').focus();
   }
@@ -110,6 +118,7 @@
   $('#search').addEventListener('input',e=>{state.query=e.target.value;state.page=1;renderResults();});
   $('#category').addEventListener('change',e=>{state.category=e.target.value;state.page=1;renderResults();});
   $('#reset').onclick=reset;
+  $('#commercial-start').onclick=()=>{reset();state.filter='commercial';renderResults();$('#library').scrollIntoView({block:'start'});$('#library-title').focus({preventScroll:true});};
   $('#nav-saved').onclick=()=>{reset();state.filter='saved';renderResults();$('#library').scrollIntoView({block:'start'});};
   ['#method-open','#note-method','#footer-method'].forEach(selector=>$(selector).onclick=methodOpen);
   for(const dialog of [$('#detail'),$('#method')]) dialog.addEventListener('click',e=>{if(e.target!==dialog)return;const rect=dialog.getBoundingClientRect();if(e.clientX<rect.left||e.clientX>rect.right||e.clientY<rect.top||e.clientY>rect.bottom)dialog.close();});

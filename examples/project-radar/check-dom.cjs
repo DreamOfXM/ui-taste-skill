@@ -38,6 +38,15 @@ test('payment filter uses checkout evidence rather than sales assumptions',()=>{
   const count=snapshot.projects.filter(p=>p.mechanisms.some(m=>m.kind==='checkout_present')).length;
   assert.ok($('#result-count').textContent.startsWith(String(count)));assert.ok(all('.result-meta').every(x=>x.textContent.includes('采集到支付入口')));
 });
+test('commercial entry includes pricing, ads and donations without treating them as checkout',()=>{
+  click('#commercial-start');
+  const expected=snapshot.projects.filter(p=>p.mechanisms.some(m=>['checkout_present','pricing_present','ads_active','donation_present'].includes(m.kind)));
+  assert.ok($('#result-count').textContent.startsWith(String(expected.length)));
+  assert.equal(document.activeElement,$('#library-title'));
+  const donationOnly=expected.find(p=>p.mechanisms.some(m=>m.kind==='donation_present')&&!p.mechanisms.some(m=>m.kind==='checkout_present'));
+  input(donationOnly.originalName);assert.ok(all('#results [data-open]').some(b=>b.dataset.open===donationOnly.id));
+  click('[data-filter="payment"]');assert.ok(!all('#results [data-open]').some(b=>b.dataset.open===donationOnly.id));click('#reset');
+});
 test('source and category filters intersect and reset pagination',()=>{
   click('[data-filter="github"]');$('#category').value='开发工具';$('#category').dispatchEvent(new Event('change'));
   const count=snapshot.projects.filter(p=>p.sources.includes('github')&&p.category==='开发工具').length;
@@ -50,6 +59,8 @@ test('detail contains full original description, source and unknowns',()=>{
   click('#feature [data-open]');assert.equal($('#detail').open,true);assert.equal($('#detail-title').textContent,'Shaders');
   assert.ok($('#detail-content').textContent.includes('WebGPU components'));
   assert.ok($('#detail-content').textContent.includes('5,068'));assert.ok($('#detail-content').textContent.includes('是否有真实付费客户'));
+  assert.ok($('#detail-content').textContent.includes('5,003 → 5,068'));
+  assert.ok($('#detail-content').textContent.includes('stripe'));assert.ok($('#detail-content').textContent.includes('pricing page'));
   assert.ok($('#detail-content').textContent.includes('快照未保留具体命中页面'));
   assert.ok($('#detail-content a[href="https://shaders.com"]'));click('.close-detail');assert.equal($('#detail').open,false);
 });

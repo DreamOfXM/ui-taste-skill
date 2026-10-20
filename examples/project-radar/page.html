@@ -3,38 +3,38 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark light">
-<title>项目雷达 — 发现值得研究的产品</title>
+<title>赚钱项目雷达 — 从真实产品寻找商业线索</title>
 <style>/* INLINE_STYLE */</style>
 </head>
 <body>
 <a class="skip" href="#library">跳到项目目录</a>
 <header class="site-header"><div class="header-inner">
-  <a class="brand" href="#top" aria-label="项目雷达首页"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12"/><circle cx="16" cy="16" r="6"/><path d="M16 16 26 6M16 2v4M2 16h4"/><circle cx="21" cy="11" r="2" class="brand-dot"/></svg><span>项目雷达<small>PRODUCT OBSERVATORY</small></span></a>
+  <a class="brand" href="#top" aria-label="赚钱项目雷达首页"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12"/><circle cx="16" cy="16" r="6"/><path d="M16 16 26 6M16 2v4M2 16h4"/><circle cx="21" cy="11" r="2" class="brand-dot"/></svg><span>赚钱项目雷达<small>BUSINESS SIGNALS</small></span></a>
   <nav aria-label="主导航"><a href="#top" class="current">发现</a><a href="#library">项目目录</a><button id="nav-saved">我的收藏 <span id="saved-count">0</span></button></nav>
   <div class="header-actions"><button id="method-open" class="quiet">方法与来源</button><button id="theme" class="icon-button" aria-label="切换浅色主题"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div>
 </div></header>
 <main id="top" class="shell">
   <section class="intro" aria-labelledby="page-heading">
-    <div><p class="eyebrow"><span class="live-dot"></span> 为独立开发者而做的产品观察</p><h1 id="page-heading">好产品，值得多看一眼。</h1><p class="intro-copy">从一个真实产品出发，理解它做什么、被谁关注，以及收费的线索。</p></div>
+    <div><p class="eyebrow"><span class="live-dot"></span> 为独立开发者寻找商业线索</p><h1 id="page-heading">从真实产品里，寻找生意的线索。</h1><p class="intro-copy">看它解决什么问题、靠什么收费、有哪些关注线索，再决定是否值得深入验证。</p></div>
     <div class="edition"><span>本期观察</span><strong>2026.10.19</strong><span>数据快照 · 非实时行情</span></div>
   </section>
   <section class="opening" aria-label="本期关注">
     <article class="feature" id="feature"></article>
-    <aside class="editorial"><span class="eyebrow">观察手记 <span class="line"></span> 01</span><h2>有了收费入口，<br>就有了一门生意？</h2><p>一个支付按钮说明产品提供了收费路径。是否真的有人买单，还需要更多证据。</p><p>我们把已知与未知放在一起，让你带着判断继续研究。</p><button class="text-link" id="note-method">了解我们怎么看证据 <span>↗</span></button><div class="editorial-foot"><span>保持好奇，也保留疑问。</span><svg width="45" height="32" viewBox="0 0 45 32" aria-hidden="true"><path d="M2 24 14 9l7 10L37 2m-9 1 10-1-1 10"/></svg></div></aside>
+    <aside class="editorial"><span class="eyebrow">本期线索 <span class="line"></span> 01</span><h2>收费的路径，<br>值得先拆开看。</h2><p id="commercial-summary"></p><p>定价、支付、广告和打赏分开看。它们说明可能的变现方式，不能证明已经赚到钱。</p><button class="text-link" id="commercial-start">筛选有商业线索的项目 <span>↗</span></button><div class="editorial-foot"><button class="text-link" id="note-method">线索如何采集与判断 <span>↗</span></button></div></aside>
   </section>
   <section class="curated" aria-labelledby="curated-title">
-    <div class="section-heading"><div><p class="eyebrow">本期选题 · 创作者工具与 AI 协作</p><h2 id="curated-title">还有这些，值得打开看看。</h2></div><a class="text-link" href="#library">探索全部项目 <span>↗</span></a></div>
+    <div class="section-heading"><div><p class="eyebrow">商业拆解 · 创作者工具与 AI 协作</p><h2 id="curated-title">从用途到收费，逐个拆开看。</h2></div><a class="text-link" href="#library">探索全部项目 <span>↗</span></a></div>
     <div id="curated-grid" class="curated-grid"></div>
   </section>
   <section id="library" class="library" aria-labelledby="library-title">
     <div class="section-heading"><div><p class="eyebrow">按你的兴趣，继续探索</p><h2 id="library-title" tabindex="-1">项目目录 <span id="total-count" class="count"></span></h2></div><label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg><input id="search" type="search" placeholder="搜索名称、用途或关键词" aria-label="搜索项目"></label></div>
-    <div class="filters"><div class="filter-buttons" role="group" aria-label="筛选项目"><button data-filter="all" aria-pressed="true">全部</button><button data-filter="payment" aria-pressed="false">采集到支付线索</button><button data-filter="github" aria-pressed="false">来自 GitHub</button><button data-filter="saved" aria-pressed="false">已收藏</button></div><label class="category-label">用途 <select id="category" aria-label="按用途筛选"><option value="all">所有用途</option></select></label></div>
+    <div class="filters"><div class="filter-buttons" role="group" aria-label="筛选项目"><button data-filter="all" aria-pressed="true">全部</button><button data-filter="commercial" aria-pressed="false">有商业线索</button><button data-filter="payment" aria-pressed="false">采集到支付线索</button><button data-filter="github" aria-pressed="false">来自 GitHub</button><button data-filter="saved" aria-pressed="false">已收藏</button></div><label class="category-label">用途 <select id="category" aria-label="按用途筛选"><option value="all">所有用途</option></select></label></div>
     <div class="results-meta"><span id="result-count" role="status" aria-live="polite"></span><button id="reset" class="quiet">重置筛选</button></div>
     <div id="results" class="results" tabindex="-1" aria-label="项目搜索结果"></div><div id="pagination" class="pagination"></div>
   </section>
   <section class="source-note"><div class="source-mark" aria-hidden="true">◎</div><div><h2>数据是起点，判断仍属于你。</h2><p>本页保留 1,208 个项目的采集记录。星标反映关注，支付入口反映收费路径；两者都不能直接证明收入。每个详情页保留来源与未知项。</p></div><button id="footer-method" class="text-link">查看数据说明 <span>↗</span></button></section>
 </main>
-<footer class="footer shell"><span>项目雷达 <span class="muted">/ 发现值得研究的产品</span></span><span>交互设计原型 · 数据截至 2026.10.19</span></footer>
+<footer class="footer shell"><span>赚钱项目雷达 <span class="muted">/ 从真实产品寻找商业线索</span></span><span>交互设计原型 · 数据截至 2026.10.19</span></footer>
 <dialog id="detail" aria-labelledby="detail-title"><div class="dialog-top"><span class="eyebrow" id="detail-kicker">项目观察</span><button class="icon-button close-detail" aria-label="关闭项目详情">×</button></div><div id="detail-status" role="status" aria-live="polite"></div><div id="detail-content"></div></dialog>
 <dialog id="method" aria-labelledby="method-title"><div class="dialog-top"><span class="eyebrow">保持透明</span><button class="icon-button close-method" aria-label="关闭数据说明">×</button></div><div class="method-content"><h2 id="method-title">知道什么，<br>也说清不知道什么。</h2><p>这是一份 2026 年 10 月 19 日的数据快照，用于演示产品发现体验。编辑挑选与中文介绍属于呈现层，不构成收益排名或商业验证。</p><dl><div><dt>1,208</dt><dd>项目记录。不同来源可能对应不同的项目粒度。</dd></div><div><dt>314 / 456</dt><dd>旧报告记录的已探测 / 可探测网站数；不以 1,208 作为同一分母。</dd></div></dl><h3>证据怎么读</h3><ul><li>“采集到支付入口”只表示采集记录命中了支付机制，不表示确认发生交易。</li><li>GitHub stars、HN points 等指标分别展示，不合并成需求或收入分数。</li><li>来源仅为种子表的排名不能独立证明访问量或需求。</li><li>尚未探测、探测不完整与未发现证据是不同状态。</li><li>产品插图为编辑概念示意，不是产品实际截图；收藏仅保存在当前浏览器。</li></ul><p class="muted">原始来源与采集时间在每个项目的详情中。部分采集结果可能存在误判，请打开来源核实。</p><button class="primary close-method">继续浏览</button></div></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
