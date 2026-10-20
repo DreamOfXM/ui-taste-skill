@@ -1,0 +1,114 @@
+{
+  "date": "2026-10-20",
+  "beforeCommit": "c5c5534",
+  "captures": [
+    {
+      "file": "before-desktop.png",
+      "evidenceId": "ev_8881e36ed56bc83162a3310e28d87b697ee7bd6df43da73f509cdd41007524bf",
+      "environment": {
+        "viewport": {
+          "width": 1440,
+          "height": 1100,
+          "device_scale_factor": 1
+        },
+        "locale": "zh-CN",
+        "timezone": "Asia/Shanghai",
+        "color_scheme": "dark",
+        "reduced_motion": "reduce",
+        "service_workers": "block"
+      },
+      "steps": [
+        {
+          "id": "scenario_start",
+          "status": "completed",
+          "error": null
+        },
+        {
+          "id": "ready",
+          "status": "failed",
+          "error": "locator.waitFor: Error: strict mode violation: locator('#curated-grid .product-card') resolved to 3 elements:\n    1) <article class=\"product-card\">…</article> aka getByRole('article').filter({ hasText: 'AtelierMac 上的 AI' })\n    2) <article class=\"product-card\">…</article> aka getByRole('article').filter({ hasText: 'Agent Standup把 Claude Code、' })\n    3) <article class=\"product-card\">…</article> aka getByRole('article').filter({ hasText: 'ThemesFor' })\n\nCall log:\n\u001b[2m  - waiting for locator('#curated-grid .product-card') to be visible\u001b[22m\n"
+        }
+      ],
+      "events": [
+        {
+          "sequence": 1,
+          "step_index": 1,
+          "kind": "console",
+          "level": "error",
+          "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+          "url": {
+            "url": "http://127.0.0.1:8788/favicon.ico",
+            "origin": "http://127.0.0.1:8788",
+            "query_parameter_names": [],
+            "redacted": false
+          }
+        }
+      ],
+      "screenshotSha256": "6665af2274e554d3cdc9241f6a648f92ed00b27b5d2a0b7baa86942a2241ce81"
+    },
+    {
+      "file": "before-mobile.png",
+      "evidenceId": "ev_3f2f9a2daef5b9bd24c06d57e8b8c5a4c6a7b60ab732f9f7aadaf663d94ca5ab",
+      "environment": {
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "device_scale_factor": 1
+        },
+        "locale": "zh-CN",
+        "timezone": "Asia/Shanghai",
+        "color_scheme": "light",
+        "reduced_motion": "reduce",
+        "service_workers": "block"
+      },
+      "steps": [
+        {
+          "id": "scenario_start",
+          "status": "completed",
+          "error": null
+        },
+        {
+          "id": "mobile-ready",
+          "status": "completed",
+          "error": null
+        }
+      ],
+      "events": [],
+      "screenshotSha256": "08990e7f276084f5c5b73a1eb4498065cf9970bda9fea718de7c1e6d9d482ad2"
+    },
+    {
+      "file": "before-detail.png",
+      "evidenceId": "ev_0ea3549e386665b7d061b7af99b88b17090334a96c428ad441a5766de44fa913",
+      "environment": {
+        "viewport": {
+          "width": 1440,
+          "height": 1100,
+          "device_scale_factor": 1
+        },
+        "locale": "zh-CN",
+        "timezone": "Asia/Shanghai",
+        "color_scheme": "light",
+        "reduced_motion": "reduce",
+        "service_workers": "block"
+      },
+      "steps": [
+        {
+          "id": "scenario_start",
+          "status": "completed",
+          "error": null
+        },
+        {
+          "id": "detail",
+          "status": "completed",
+          "error": null
+        }
+      ],
+      "events": [],
+      "screenshotSha256": "04220e01a2dd4c358dcbc256ef320a6569692990d1a560ba9b263d8add3b347f"
+    }
+  ],
+  "afterChange": {
+    "status": "blocked",
+    "reason": "Local server at 127.0.0.1:8788 stopped before recapture; no listening process observed. Updated layout has not been visually verified."
+  }
+}

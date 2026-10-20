@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build a standalone design experiment from a dated, local public-data snapshot."""
 import argparse
+import base64
 import hashlib
 import json
 from pathlib import Path
@@ -66,6 +67,12 @@ def build(source=None):
     data = json.dumps(snapshot, ensure_ascii=False, separators=(',', ':')).replace('<', '\\u003c')
     html = html.replace('/* INLINE_DATA */', data)
     html = html.replace('/* INLINE_APP */', (ROOT / 'app.js').read_text())
+    media = {}
+    for key, filename in {'shader':'shader.jpg', 'atelier':'atelier.webp', 'standup':'standup.jpg', 'themes':'themes.png'}.items():
+        asset = ROOT / 'assets' / filename
+        mime = {'.jpg':'image/jpeg', '.webp':'image/webp', '.png':'image/png'}[asset.suffix]
+        media[key] = 'data:' + mime + ';base64,' + base64.b64encode(asset.read_bytes()).decode('ascii')
+    html = html.replace('/* INLINE_MEDIA */', json.dumps(media))
     (ROOT / 'index.html').write_text(html)
     print(f'Built {len(snapshot["projects"])} dated project records into index.html')
 

@@ -1,0 +1,18 @@
+{
+  "themes.png": {
+    "sha256": "d663304945256f29e171d8c441cb9643ba48b78ab5b25a316d3333e75d690636",
+    "bytes": 87893
+  },
+  "standup.jpg": {
+    "sha256": "0a979112a3a3ce9254941fa50903f72f07e371640c4aee980cbc022637fb91ac",
+    "bytes": 218559
+  },
+  "atelier.webp": {
+    "sha256": "2223251c1cee11e12b67dda87bafec790523613299488ebc6ddf3686fd91ad4c",
+    "bytes": 108414
+  },
+  "shader.jpg": {
+    "sha256": "5fdb6fe370c98ae3299eeab3858e9407ae6fdfa18b0d870c3b5882abb24d4164",
+    "bytes": 81456
+  }
+}

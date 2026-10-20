@@ -2,7 +2,7 @@
 name: ui-design-router
 description: "设计、改版和评审网页或 App 界面：理解核心任务，校准审美，探索视觉方向并打磨真实交互。适用于新界面、UI 不舒服或缺乏辨识度、方案对比和视觉走查。"
 metadata:
-  version: "2.1.1"
+  version: "2.1.2"
 ---
 
 # UI Design Router
