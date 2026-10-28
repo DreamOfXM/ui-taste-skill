@@ -1,0 +1,16 @@
+{
+  "name": "ui-taste-skill",
+  "metadata": {
+    "description": "给 AI 编程助手用的 UI 设计 Skill：先比较视觉方向，再把方向写成约束，最后在真实界面上验收。"
+  },
+  "owner": {
+    "name": "DreamOfXM"
+  },
+  "plugins": [
+    {
+      "name": "ui-taste-skill",
+      "source": "./",
+      "description": "网页、桌面软件、移动 App 与 Web 工作台的设计、改版与评审。"
+    }
+  ]
+}

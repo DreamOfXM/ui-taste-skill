@@ -21,49 +21,52 @@
 
 ## 快速开始
 
-这是给编程助手读取的指令与参考资料目录，不是可单独运行的设计软件。仓库根目录就是技能根目录：克隆完整仓库，不要只复制 `SKILL.md`，执行中还会读取 `references/` 和 `assets/`。
+这是给编程助手读取的指令与参考资料目录，不是可单独运行的设计软件；仓库根目录就是技能根目录。
 
-需要 Git，以下命令在 macOS / Linux 终端执行；按你使用的客户端选择一条路径。
+### 在 Qoder 中安装
 
-### 在 Qoder 中使用
+1. 下载 [ui-taste-skill.zip](https://github.com/DreamOfXM/ui-taste-skill/releases/latest/download/ui-taste-skill.zip)。
+2. 打开 Extensions → Skills，选择 Add Skills → Upload Skill，导入这个 ZIP。
+3. Installed 里出现 `ui-taste-skill` 后，在新任务中输入 `/` 选中它，再接上你的需求。
 
-在终端运行：
+导入前建议浏览一遍 `SKILL.md` 与 `references/`：其中的脚本和外部请求都要按作者提供的可执行代码对待。
 
-```sh
-mkdir -p "$HOME/.qoder/skills"
-git clone https://github.com/DreamOfXM/ui-taste-skill.git "$HOME/.qoder/skills/ui-taste-skill"
+### 在 Claude Code 中安装
+
+本仓库同时是一个 Claude Code 插件市场。在 Claude Code 会话里输入：
+
+```text
+/plugin marketplace add DreamOfXM/ui-taste-skill
+/plugin install ui-taste-skill@ui-taste-skill
 ```
 
-开启新会话，可用 Skill 列表中出现 `ui-taste-skill` 即装好，也可以直接输入 `/ui-taste-skill 评审当前页面，先不要修改代码`。
+也可以不进会话，在终端执行 `claude plugin marketplace add DreamOfXM/ui-taste-skill` 和 `claude plugin install ui-taste-skill@ui-taste-skill`。装好后新会话里问 `What skills are available?`，应出现 `ui-taste-skill`；它的调用名带插件前缀，在 `/` 列表里能看到。依据见 [Claude Code 插件文档](https://code.claude.com/docs/en/plugins)。
 
-### 在 Claude Code 中使用
+### 在 Codex 中安装
 
-用户级安装让本机所有项目可用；只给一个项目用时，把同样的目录放到该项目的 `.claude/skills/ui-taste-skill/`。用户级安装：
-
-```sh
-mkdir -p "$HOME/.claude/skills"
-git clone https://github.com/DreamOfXM/ui-taste-skill.git "$HOME/.claude/skills/ui-taste-skill"
-```
-
-在任意项目中开启新会话，先问 `What skills are available?`，列表里出现 `ui-taste-skill` 后，可以直接输入 `/ui-taste-skill 评审当前页面，先不要修改代码`。目录位置与显式调用方式见 [Claude Code 官方说明](https://code.claude.com/docs/en/skills#where-skills-live)。
-
-### 在 Codex 中使用
-
-Codex 的 skill 安装脚本默认把技能放进 `$CODEX_HOME/skills`，未设置 `CODEX_HOME` 时就是 `~/.codex/skills`（见 [openai/codex 仓库里的 skill-installer 说明](https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/skill-installer/SKILL.md)）。在终端运行：
+Codex 从用户级目录 `~/.agents/skills` 读取技能。用 skills CLI 装到该目录（需要 Node.js 22.20+）：
 
 ```sh
-mkdir -p "$HOME/.codex/skills"
-git clone https://github.com/DreamOfXM/ui-taste-skill.git "$HOME/.codex/skills/ui-taste-skill"
+npx skills add DreamOfXM/ui-taste-skill -g -a codex
 ```
 
-设置过 `CODEX_HOME` 时，把上面两个路径换成 `$CODEX_HOME/skills`。开启新会话后输入 `$ui-taste-skill`，应能指名这个技能；没有反应时先确认目录是否正确、克隆是否完整。
+也可以把本仓库完整复制到 `~/.agents/skills/ui-taste-skill`。新会话中输入 `$ui-taste-skill` 应能指名它；没有反应时先确认目录是否正确、文件是否完整。
+
+### 其他客户端
+
+[skills CLI](https://github.com/vercel-labs/skills) 支持 Qoder、Claude Code、Codex 等 75 个以上客户端。把仓库装到它识别到的客户端（`-g` 表示用户级，去掉则只装到当前项目）：
+
+```sh
+npx skills add DreamOfXM/ui-taste-skill -g
+```
+
+升级用 `npx skills update`，卸载用 `npx skills remove ui-taste-skill`。
 
 ### 安装时注意
 
 - 目标目录已存在时不要覆盖：它已经指向本仓库或其他克隆就保留现状；是无关目录就先移开或备份再克隆。
-- 技能列表里没有出现，先确认克隆的是完整仓库、放的是所用客户端真正扫描的目录；旧会话可能需要重开。
-- 加载技能不需要 Python 或 Node.js，只有本地打开示范页面、运行维护检查时才需要。
-- 更新时在安装目录执行 `git pull`；不再使用时删除该目录即可。
+- 技能列表里没有出现，先确认克隆或导入的是完整目录、放的是所用客户端真正扫描的位置；旧会话可能需要重开。
+- Qoder 与 Claude Code 的安装不需要 Node.js 或 Python；只有 `npx skills`、本地打开示范页面、运行维护检查时才需要。
 
 ## 试一个任务
 
@@ -94,10 +97,10 @@ git clone https://github.com/DreamOfXM/ui-taste-skill.git "$HOME/.codex/skills/u
 
 ## 查看示范
 
-这些是随仓库提供的离线 HTML 页面，不是在线产品。GitHub 中的 HTML 文件链接展示源码；要在浏览器里体验，需要 Python 3，在已安装的仓库目录运行：
+这些是随仓库提供的离线 HTML 页面，不是在线产品。GitHub 中的 HTML 文件链接展示源码；要在浏览器里体验，需要 Python 3，在本仓库目录或解压后的 ZIP 目录运行：
 
 ```sh
-cd ~/.qoder/skills/ui-taste-skill   # 换成实际安装目录，如 ~/.claude/skills/ui-taste-skill
+cd /path/to/ui-taste-skill   # 换成仓库或解压目录
 python3 -m http.server 8788 --bind 127.0.0.1
 ```
 
