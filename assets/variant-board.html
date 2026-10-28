@@ -1,42 +1,744 @@
 <!doctype html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>变体画板 — 结构对比（ui-design-router）</title>
-<style>
-  body { margin:0; font:12px/1.5 ui-monospace,Menlo,monospace; background:#141414; color:#ccc; }
-  header { padding:8px 14px; display:flex; gap:14px; align-items:baseline; }
-  header b { color:#fff; font-weight:600; }
-  header span { opacity:.55; }
-  #board { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:10px; height:calc(100vh - 40px); }
-  .art { display:flex; flex-direction:column; border:1px solid #333; border-radius:6px; overflow:hidden; background:#fff; min-width:0; }
-  .art.zen { position:fixed; inset:10px; z-index:9; height:auto; }
-  .bar { display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:#222; color:#ddd; flex:none; }
-  .bar button { background:#3a3a3a; color:#eee; border:0; border-radius:4px; padding:1px 10px; cursor:pointer; font:inherit; }
-  .art iframe { flex:1; width:100%; border:0; min-height:0; }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>字间 LETTERSPACE — 本机字体观察室</title>
+  <style>
+    :root { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; color: #242824; background: #f5f4ee; font-synthesis: none; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button, input, textarea { -webkit-tap-highlight-color: transparent; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex="-1"]:focus-visible { outline: 2px solid var(--focus, #2450dc); outline-offset: 4px; }
+    [hidden] { display: none !important; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    .icon-library { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .teaching-bar { height: 40px; padding: 0 28px; display: flex; justify-content: space-between; align-items: center; gap: 16px; color: #e7eaf0; background: #181c22; font-size: 11px; letter-spacing: .035em; --focus: #bdceff; }
+    .teaching-label { display: flex; align-items: center; gap: 14px; white-space: nowrap; }
+    .teaching-label strong { font-size: 11px; font-weight: 600; }
+    .teaching-label span { color: #b8bfc9; padding-left: 14px; border-left: 1px solid #49505a; }
+    .direction-switch { display: flex; gap: 4px; height: 30px; }
+    .direction-switch button { border: 0; border-radius: 2px; background: transparent; color: #bac2ce; padding: 0 13px; font-size: 11px; transition: background 160ms, color 160ms; }
+    .direction-switch button:hover { background: #303743; color: #fff; }
+    .direction-switch button[aria-pressed="true"] { background: #e8ecf4; color: #1d2531; }
+    .direction-switch .direction-number { margin-right: 7px; font: 10px Menlo, Consolas, monospace; }
+    #type-app { --paper: #f5f4ee; --surface: #ebeae3; --ink: #242824; --muted: #62675f; --line: #d0d2c7; --accent: #254ddd; --accent-text: #2449ca; --focus: #244fda; --proof-line: #cfd2c5; min-height: calc(100vh - 40px); background: var(--paper); color: var(--ink); color-scheme: light; }
+    .brand-header { max-width: 1600px; min-height: 88px; margin: 0 auto; padding: 20px 48px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 17px; }
+    .brand-wordmark { font-family: "Songti SC", STSong, serif; font-size: 35px; font-weight: 600; line-height: 1; letter-spacing: -.07em; }
+    .brand-latin { font-size: 12px; font-weight: 650; letter-spacing: .15em; line-height: 1.45; }
+    .brand-latin small { display: block; color: var(--muted); font-size: 10px; font-weight: 400; letter-spacing: .075em; margin-top: 3px; }
+    .brand-caption { margin-right: auto; margin-left: 30px; padding-left: 25px; border-left: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.7; }
+    .local-label { text-align: right; font-size: 11px; line-height: 1.6; }
+    .local-label > span { display: block; color: var(--muted); font: 9px/1.6 Menlo, Consolas, monospace; letter-spacing: .07em; }
+    .local-label b { display: inline-block; width: 5px; height: 5px; background: var(--accent); margin: 0 7px 2px 0; }
+    .workspace { max-width: 1600px; margin: 0 auto; padding: 22px 48px 0; display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: "heading heading" "controls controls" "listhead detail" "collection detail" "colnote detail"; grid-template-rows: auto auto auto minmax(0, 1fr) auto; column-gap: 30px; row-gap: 14px; align-items: start; }
+    .collection-heading { grid-area: heading; display: flex; justify-content: space-between; align-items: baseline; gap: 20px; min-width: 0; }
+    .heading-left { display: flex; gap: 20px; align-items: baseline; }
+    h1 { font-size: 27px; line-height: 1.35; font-weight: 550; letter-spacing: -.045em; margin: 0; }
+    .heading-description { margin: 0; font-family: "Songti SC", STSong, serif; font-size: 14px; color: var(--muted); }
+    .heading-edition { font: 10px/1.5 Menlo, Consolas, monospace; letter-spacing: .055em; color: var(--muted); white-space: nowrap; }
+    .browse-controls { grid-area: controls; display: flex; gap: 22px; align-items: center; min-width: 0; }
+    .search-field { display: flex; align-items: center; position: relative; height: 40px; width: 276px; flex-shrink: 0; border: 1px solid var(--line); background: transparent; }
+    .search-field > .icon { position: absolute; left: 12px; color: var(--muted); pointer-events: none; width: 16px; height: 16px; }
+    #specimen-search { width: 100%; height: 100%; border: 0; border-radius: 0; background: transparent; color: var(--ink); padding: 0 38px 0 37px; font-size: 12px; appearance: none; }
+    #specimen-search::-webkit-search-cancel-button { appearance: none; }
+    #specimen-search::placeholder { color: var(--muted); opacity: 1; }
+    #clear-search { position: absolute; right: 3px; top: 3px; width: 32px; height: 32px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; color: var(--muted); }
+    #clear-search:hover { color: var(--ink); background: var(--surface); }
+    .category-controls { display: flex; align-items: center; gap: 3px; }
+    .category-controls button { min-height: 36px; padding: 0 12px; background: transparent; border: 1px solid transparent; border-radius: 2px; font-size: 12px; color: var(--muted); white-space: nowrap; transition: color 160ms, background 160ms, border-color 160ms; }
+    .category-controls button:hover { color: var(--ink); border-color: var(--line); }
+    .category-controls button[aria-pressed="true"] { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+    .collection-controls { margin-left: auto; display: flex; align-items: center; gap: 2px; border-bottom: 1px solid var(--line); }
+    .collection-controls button { height: 40px; display: flex; gap: 7px; align-items: center; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 0 12px; background: transparent; color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .collection-controls button[aria-pressed="true"] { border-bottom-color: var(--accent); color: var(--ink); }
+    .collection-controls button:hover { color: var(--accent-text); }
+    .collection-controls .icon { width: 14px; height: 14px; }
+    #saved-count { font: 11px Menlo, Consolas, monospace; color: var(--muted); }
+    .list-heading { grid-area: listhead; display: flex; align-items: center; justify-content: space-between; min-height: 20px; gap: 12px; }
+    #specimen-count { font: 10px/1.6 Menlo, Consolas, "PingFang SC", sans-serif; letter-spacing: .035em; color: var(--muted); }
+    .list-hint { font-size: 10px; color: var(--muted); }
+    .collection { grid-area: collection; min-width: 0; }
+    .specimen-list { padding: 0; margin: 0; list-style: none; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1px; background: var(--line); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .specimen { position: relative; grid-column: span 7; min-width: 0; min-height: 196px; background: var(--paper); container-type: inline-size; }
+    .specimen:nth-child(6n + 2), .specimen:nth-child(6n + 3), .specimen:nth-child(6n + 6) { grid-column: span 5; }
+    .specimen:nth-child(6n + 5), .specimen:nth-child(6n + 6) { min-height: 180px; }
+    .specimen-open { display: grid; grid-template-rows: auto 1fr auto; width: 100%; height: 100%; min-height: inherit; padding: 15px 21px 16px; text-align: left; border: 0; background: transparent; color: inherit; }
+    .card-top { display: flex; align-items: center; gap: 13px; padding-right: 28px; font-size: 9px; line-height: 18px; letter-spacing: .04em; color: var(--muted); }
+    .object-index { font: 10px/18px Menlo, Consolas, monospace; }
+    .family-label { white-space: nowrap; }
+    .current-label { display: none; margin-left: auto; color: var(--accent-text); font-size: 9px; letter-spacing: .02em; }
+    .specimen[data-selected="true"] .current-label { display: inline; }
+    .specimen[data-selected="true"] .object-index { color: var(--accent-text); font-weight: 600; }
+    .specimen-sample { display: block; align-self: center; padding: 11px 0 12px; font-family: var(--font-stack); font-size: clamp(28px, var(--tile-fluid), var(--tile-size)); line-height: var(--tile-leading, 1.12); letter-spacing: var(--tile-tracking, -.035em); white-space: pre-line; overflow-wrap: anywhere; font-weight: var(--sample-weight, 400); font-style: var(--sample-style, normal); }
+    .card-bottom { display: grid; grid-template-columns: minmax(0, 1fr) 18px; align-items: end; gap: 3px 10px; }
+    .font-name { font-size: 13px; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
+    .card-note { grid-column: 1; font-size: 11px; line-height: 1.5; color: var(--muted); }
+    .card-arrow { grid-column: 2; grid-row: 1 / span 2; align-self: center; width: 15px; height: 15px; color: var(--muted); transition: transform 180ms, color 180ms; }
+    .specimen-open:hover .card-arrow { transform: translate(2px, -2px); color: var(--accent-text); }
+    .specimen-open:focus-visible { position: relative; z-index: 2; outline-offset: -5px; }
+    .specimen[data-selected="true"]::after { content: ""; position: absolute; bottom: 0; left: 21px; right: 21px; height: 2px; background: var(--accent); pointer-events: none; }
+    .specimen-save { position: absolute; top: 8px; right: 9px; width: 34px; height: 34px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 2px; color: var(--muted); background: transparent; transition: background 160ms, color 160ms; }
+    .specimen-save .icon { width: 15px; height: 15px; }
+    .specimen-save:hover { background: var(--surface); color: var(--ink); }
+    .specimen-save[aria-pressed="true"] { color: var(--accent-text); }
+    .specimen-save[aria-pressed="true"] .icon { fill: currentColor; }
+    #type-app[data-direction="gallery"] .specimen[data-id="baskerville"] { background: #294ddd; color: #fff; --muted: #e0e7ff; --accent: #fff; --accent-text: #fff; --surface: #183abc; --ink: #fff; --focus: #fff; }
+    .specimen[data-id="songti"] { --tile-size: 72px; --tile-fluid: 14cqi; --tile-tracking: -.085em; }
+    .specimen[data-id="pingfang"] { --tile-size: 34px; --tile-fluid: 8.8cqi; --tile-leading: 1.27; --tile-tracking: -.045em; }
+    .specimen[data-id="baskerville"] { --tile-size: 63px; --tile-fluid: 18cqi; --tile-leading: .91; --tile-tracking: -.05em; }
+    .specimen[data-id="menlo"] { --tile-size: 20px; --tile-fluid: 4.4cqi; --tile-leading: 1.5; --tile-tracking: -.055em; }
+    .specimen[data-id="menlo"] .specimen-sample { font-size: clamp(12px, var(--tile-fluid), var(--tile-size)); white-space: pre-wrap; }
+    .specimen[data-id="georgia"] { --tile-size: 38px; --tile-fluid: 8cqi; --tile-leading: 1.12; }
+    .specimen[data-id="helvetica"] { --tile-size: 34px; --tile-fluid: 8.8cqi; --tile-leading: 1.08; --tile-tracking: -.055em; }
+    .specimen-list.is-filtered .specimen { grid-column: span 6; min-height: 210px; }
+    .specimen-list[data-visible-count="1"] .specimen { grid-column: 1 / -1; }
+    .collection-note { grid-area: colnote; display: flex; justify-content: space-between; gap: 12px; font-size: 10px; color: var(--muted); line-height: 1.6; }
+    .collection-note .note-rule { display: flex; align-items: center; gap: 8px; }
+    .collection-note .note-rule::before { content: ""; display: inline-block; width: 20px; height: 1px; background: var(--muted); }
+    .collection-note .note-index { font: 9px/1.7 Menlo, Consolas, monospace; letter-spacing: .04em; white-space: nowrap; }
+    #specimen-empty { min-height: 300px; padding: 44px 30px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .empty-mark { font: 42px/1 "Songti SC", STSong, serif; color: var(--muted); margin-bottom: 21px; }
+    #empty-title { font-size: 21px; font-weight: 500; margin: 0 0 12px; }
+    #empty-description { max-width: 340px; margin: 0 0 22px; font-size: 13px; line-height: 1.8; color: var(--muted); }
+    #clear-specimen-filters { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 40px; padding: 0 14px; border: 1px solid var(--ink); border-radius: 0; background: transparent; color: var(--ink); font-size: 12px; }
+    #clear-specimen-filters:hover { color: var(--paper); background: var(--ink); }
+    #specimen-detail { grid-area: detail; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "proof" "specs" "edit" "save" "note"; gap: 12px; min-width: 0; padding: 18px; background: var(--surface); border-top: 2px solid var(--ink); }
+    .detail-head { grid-area: head; min-width: 0; }
+    .detail-topline { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .detail-kicker { display: flex; align-items: center; gap: 9px; font-size: 10px; color: var(--muted); }
+    .detail-kicker::before { content: ""; width: 5px; height: 5px; background: var(--accent); }
+    #detail-index { font: 10px Menlo, Consolas, monospace; color: var(--muted); }
+    #close-specimen { display: none; min-height: 36px; align-items: center; gap: 7px; border: 0; background: transparent; padding: 0; font-size: 12px; }
+    #detail-name { margin: 0 0 6px; font-size: 22px; font-weight: 500; letter-spacing: -.035em; line-height: 1.25; overflow-wrap: anywhere; }
+    #detail-description { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .proof-panel { grid-area: proof; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); min-width: 0; }
+    .proof-topline { display: flex; align-items: center; justify-content: space-between; padding: 9px 0 0; gap: 12px; font: 9px/1.5 Menlo, Consolas, "PingFang SC", sans-serif; letter-spacing: .04em; color: var(--muted); }
+    .proof-stage { min-height: 82px; padding: 13px 0; display: flex; align-items: center; container-type: inline-size; }
+    #proof-text { width: 100%; margin: 0; font-family: var(--font-stack); font-size: clamp(19px, var(--proof-fluid, 12cqi), 43px); font-weight: var(--sample-weight, 400); font-style: var(--sample-style, normal); letter-spacing: -.04em; line-height: 1.26; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .proof-bottomline { padding: 5px 0 8px; border-top: 1px solid var(--proof-line); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    #detail-glyphs { font-family: var(--font-stack); font-size: 16px; line-height: 1.2; letter-spacing: .06em; }
+    .proof-bottomline > span:last-child { font: 8px/1.5 Menlo, Consolas, "PingFang SC", sans-serif; color: var(--muted); letter-spacing: .035em; }
+    .detail-specs { grid-area: specs; margin: 0; min-width: 0; }
+    .detail-specs dt { color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .detail-specs dd { margin: 4px 0 0; font-size: 12px; line-height: 1.6; }
+    .stack-spec { margin-bottom: 10px; }
+    #detail-stack { font: 11px/1.7 Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+    .small-specs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .try-control { grid-area: edit; min-width: 0; }
+    .try-label { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 5px; font-size: 12px; color: var(--muted); }
+    #reset-proof { padding: 0; min-height: 20px; border: 0; background: transparent; font-size: 11px; color: var(--accent-text); }
+    #reset-proof:disabled { color: var(--muted); opacity: 1; cursor: default; }
+    #specimen-custom-text { width: 100%; min-height: 38px; height: 38px; resize: vertical; display: block; border: 1px solid var(--line); border-radius: 0; color: var(--ink); background: var(--paper); padding: 8px 10px; font-size: 12px; line-height: 1.5; }
+    #specimen-custom-text::placeholder { color: var(--muted); opacity: 1; }
+    #detail-save { grid-area: save; min-height: 40px; display: flex; justify-content: center; align-items: center; gap: 9px; padding: 10px 14px; border: 1px solid var(--ink); border-radius: 0; color: var(--paper); background: var(--ink); font-size: 12px; transition: background 160ms, border-color 160ms, color 160ms; }
+    #detail-save:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+    #detail-save[aria-pressed="true"] { background: transparent; color: var(--accent-text); border-color: var(--accent-text); }
+    #detail-save[aria-pressed="true"] .icon { fill: currentColor; }
+    #detail-save .icon { width: 15px; height: 15px; }
+    .detail-footnote { grid-area: note; margin: -3px 0 0; color: var(--muted); font-size: 11px; line-height: 1.8; }
+    #detail-filter-note { display: block; margin-top: 5px; color: var(--accent-text); }
+    .site-footer { max-width: 1504px; margin: 22px auto 0; padding: 14px 0 18px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; font-size: 10px; color: var(--muted); line-height: 1.7; }
+    .footer-left { display: flex; flex-wrap: wrap; gap: 7px 17px; }
+    .footer-left strong { color: var(--ink); font-weight: 500; }
+    @media (max-width: 1599px) { .site-footer { margin-left: 48px; margin-right: 48px; } }
+
+    #type-app[data-direction="instrument"] { --paper: #171c20; --surface: #23292f; --ink: #ecf0ef; --muted: #adb7c0; --line: #414b53; --accent: #6287ff; --accent-text: #b6c8ff; --focus: #c6d5ff; --proof-line: #424c55; color-scheme: dark; }
+    [data-direction="instrument"] .brand-header { min-height: 80px; padding: 17px 32px; }
+    [data-direction="instrument"] .brand-wordmark { font-size: 31px; }
+    [data-direction="instrument"] .brand-caption { font-family: Menlo, Consolas, "PingFang SC", sans-serif; font-size: 10px; }
+    [data-direction="instrument"] .workspace { padding: 24px 32px 0; grid-template-columns: 326px minmax(0, 1fr); grid-template-areas: "heading detail" "controls detail" "listhead detail" "collection detail" "colnote detail"; grid-template-rows: auto auto auto auto 1fr; gap: 13px 26px; }
+    [data-direction="instrument"] .collection-heading { align-items: center; }
+    [data-direction="instrument"] h1 { font-size: 20px; font-weight: 500; letter-spacing: -.025em; }
+    [data-direction="instrument"] .heading-description { display: none; }
+    [data-direction="instrument"] .heading-edition { font-size: 9px; }
+    [data-direction="instrument"] .browse-controls { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    [data-direction="instrument"] .search-field { width: 100%; background: #20262b; }
+    [data-direction="instrument"] .category-controls { justify-content: space-between; gap: 4px; }
+    [data-direction="instrument"] .category-controls button { flex: 1; min-height: 34px; padding: 0 9px; border-color: var(--line); font-size: 11px; }
+    [data-direction="instrument"] .category-controls button[aria-pressed="true"] { background: #dce5f2; color: #1a2431; border-color: #dce5f2; }
+    [data-direction="instrument"] .collection-controls { margin: 0; gap: 12px; }
+    [data-direction="instrument"] .collection-controls button { height: 34px; padding: 0 5px; font-size: 11px; }
+    [data-direction="instrument"] .list-hint { font-size: 9px; }
+    [data-direction="instrument"] .specimen-list { display: flex; flex-direction: column; gap: 6px; border: 0; background: transparent; }
+    [data-direction="instrument"] .specimen { min-height: 75px; background: #20262b; border: 1px solid var(--line); border-radius: 2px; }
+    [data-direction="instrument"] .specimen-open { min-height: 75px; display: grid; grid-template-columns: 23px minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 6px 10px; padding: 12px 40px 12px 12px; }
+    [data-direction="instrument"] .card-top, [data-direction="instrument"] .card-bottom { display: contents; }
+    [data-direction="instrument"] .object-index { grid-column: 1; grid-row: 1 / span 2; align-self: center; color: var(--muted); font-size: 10px; }
+    [data-direction="instrument"] .family-label, [data-direction="instrument"] .current-label, [data-direction="instrument"] .card-note, [data-direction="instrument"] .card-arrow { display: none !important; }
+    [data-direction="instrument"] .font-name { grid-column: 2; grid-row: 1; font-size: 12px; line-height: 1.4; color: var(--ink); }
+    [data-direction="instrument"] .specimen .specimen-sample { grid-column: 2; grid-row: 2; align-self: start; padding: 0; font-size: 13px; line-height: 1.4; color: var(--muted); white-space: normal; letter-spacing: 0; }
+    [data-direction="instrument"] .specimen-save { top: 11px; right: 5px; }
+    [data-direction="instrument"] .specimen-open:hover { background: #2a323a; }
+    [data-direction="instrument"] .specimen[data-selected="true"] { background: #27364b; border-color: #7190d5; }
+    [data-direction="instrument"] .specimen[data-selected="true"]::after { left: -1px; top: 12px; bottom: 12px; right: auto; width: 3px; height: auto; background: #9bb6ff; }
+    [data-direction="instrument"] .specimen[data-selected="true"] .specimen-sample { color: #c3cedd; }
+    [data-direction="instrument"] .specimen[data-selected="true"] .object-index { color: #c7d6ff; }
+    [data-direction="instrument"] .collection-note { border-top: 1px solid var(--line); padding-top: 11px; font-size: 9px; }
+    [data-direction="instrument"] .collection-note .note-index { display: none; }
+    [data-direction="instrument"] #specimen-detail { background: transparent; border: 0; padding: 0; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "head save" "proof proof" "edit edit" "specs specs" "note note"; column-gap: 24px; row-gap: 18px; }
+    [data-direction="instrument"] .detail-topline { margin: 0 0 15px; }
+    [data-direction="instrument"] .detail-kicker { font: 10px/1.6 Menlo, Consolas, "PingFang SC", sans-serif; }
+    [data-direction="instrument"] #detail-index { margin-left: auto; }
+    [data-direction="instrument"] #detail-name { font-size: 30px; margin-bottom: 9px; }
+    [data-direction="instrument"] #detail-description { font-size: 13px; line-height: 1.8; }
+    [data-direction="instrument"] #detail-save { align-self: center; min-width: 115px; background: #315be5; border-color: #315be5; color: #fff; }
+    [data-direction="instrument"] #detail-save:hover { background: #244ccb; border-color: #244ccb; }
+    [data-direction="instrument"] #detail-save[aria-pressed="true"] { color: #c7d6ff; background: #28374d; border-color: #7190d5; }
+    [data-direction="instrument"] .proof-panel { border: 1px solid var(--line); background: #20262b; }
+    [data-direction="instrument"] .proof-topline { padding: 13px 20px; border-bottom: 1px solid var(--line); font-size: 10px; }
+    [data-direction="instrument"] .proof-stage { min-height: 260px; padding: 34px 38px; position: relative; background: linear-gradient(var(--proof-line), var(--proof-line)) 20px 50% / 7px 1px no-repeat, linear-gradient(var(--proof-line), var(--proof-line)) calc(100% - 20px) 50% / 7px 1px no-repeat; }
+    [data-direction="instrument"] #proof-text { font-size: clamp(30px, var(--proof-fluid, 12cqi), 108px); line-height: 1.18; }
+    [data-direction="instrument"] .proof-bottomline { margin: 0 20px; padding: 12px 0; }
+    [data-direction="instrument"] #detail-glyphs { font-size: 22px; letter-spacing: .12em; }
+    [data-direction="instrument"] .proof-bottomline > span:last-child { font-size: 9px; }
+    [data-direction="instrument"] .try-control { display: grid; grid-template-columns: 110px minmax(0, 1fr); align-items: start; column-gap: 18px; }
+    [data-direction="instrument"] .try-label { display: block; margin: 0; padding: 1px 0; font-size: 11px; line-height: 1.7; }
+    [data-direction="instrument"] #reset-proof { display: block; margin-top: 3px; font-size: 10px; }
+    [data-direction="instrument"] #specimen-custom-text { height: 50px; min-height: 50px; background: #20262b; font-size: 12px; padding: 13px; }
+    [data-direction="instrument"] .detail-specs { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 26px; padding: 20px 0 0; border-top: 1px solid var(--line); }
+    [data-direction="instrument"] .stack-spec { margin: 0; }
+    [data-direction="instrument"] .detail-specs dt { font-size: 10px; }
+    [data-direction="instrument"] .detail-specs dd { font-size: 12px; }
+    [data-direction="instrument"] #detail-stack { font-size: 11px; }
+    [data-direction="instrument"] .detail-footnote { font-size: 11px; margin-top: -6px; }
+    [data-direction="instrument"] #specimen-empty { min-height: 320px; padding: 30px 20px; border: 1px solid var(--line); background: #20262b; }
+    [data-direction="instrument"] #empty-title { font-size: 20px; }
+    [data-direction="instrument"] .site-footer { margin-left: 32px; margin-right: 32px; margin-top: 24px; }
+    @media (min-width: 1600px) { [data-direction="instrument"] .site-footer { margin-left: auto; margin-right: auto; max-width: 1536px; } }
+    @media (min-width: 761px) and (max-width: 1100px) {
+      .brand-header { padding-left: 28px; padding-right: 28px; }
+      .brand-caption { margin-left: 12px; padding-left: 18px; }
+      .workspace { padding-left: 28px; padding-right: 28px; grid-template-columns: minmax(0, 1fr) 270px; column-gap: 22px; }
+      .heading-description { font-size: 12px; }
+      .heading-edition { display: none; }
+      .browse-controls { gap: 12px; flex-wrap: wrap; }
+      .search-field { width: 235px; }
+      .category-controls button { padding: 0 9px; }
+      .collection-controls { margin-left: 0; }
+      .specimen-open { padding-left: 16px; padding-right: 16px; }
+      .card-top { gap: 8px; }
+      .family-label { font-size: 8px; }
+      .current-label { display: none !important; }
+      #specimen-detail { padding: 17px; }
+      .site-footer { margin-left: 28px; margin-right: 28px; }
+      [data-direction="instrument"] .workspace { grid-template-columns: 280px minmax(0, 1fr); gap: 13px 20px; padding-left: 24px; padding-right: 24px; }
+      [data-direction="instrument"] #specimen-detail { column-gap: 14px; }
+      [data-direction="instrument"] #detail-name { font-size: 26px; }
+      [data-direction="instrument"] #detail-save { min-width: 40px; padding: 10px; }
+      [data-direction="instrument"] #detail-save-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+      [data-direction="instrument"] .proof-stage { padding-left: 26px; padding-right: 26px; }
+      [data-direction="instrument"] .detail-specs { grid-template-columns: 1fr; gap: 15px; }
+    }
+    @media (max-width: 760px) {
+      .teaching-bar { padding: 0 12px; gap: 8px; }
+      .teaching-label strong { font-size: 10px; font-weight: 500; }
+      .teaching-label span { display: none; }
+      .direction-switch { gap: 2px; }
+      .direction-switch button { font-size: 10px; padding: 0 9px; }
+      .direction-switch .direction-number { display: none; }
+      .brand-header, [data-direction="instrument"] .brand-header { min-height: 76px; padding: 19px 20px; gap: 12px; }
+      .brand { gap: 12px; }
+      .brand-wordmark, [data-direction="instrument"] .brand-wordmark { font-size: 31px; }
+      .brand-latin { font-size: 10px; letter-spacing: .12em; }
+      .brand-latin small { font-size: 8px; margin-top: 2px; }
+      .brand-caption { display: none; }
+      .local-label { font-size: 10px; }
+      .local-label > span { display: none; }
+      .workspace, [data-direction="instrument"] .workspace { padding: 20px 20px 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "heading" "controls" "listhead" "collection" "colnote"; grid-template-rows: none; gap: 14px; }
+      .heading-left { gap: 7px; display: block; }
+      h1, [data-direction="instrument"] h1 { font-size: 24px; line-height: 1.3; }
+      .heading-description { font-size: 12px; margin-top: 6px; }
+      .heading-edition { display: none; }
+      .browse-controls, [data-direction="instrument"] .browse-controls { display: grid; grid-template-columns: minmax(0, 1fr); gap: 9px; }
+      .search-field, [data-direction="instrument"] .search-field { width: 100%; height: 42px; }
+      #specimen-search { font-size: 14px; }
+      #clear-search { top: 4px; }
+      .category-controls, [data-direction="instrument"] .category-controls { gap: 4px; justify-content: space-between; }
+      .category-controls button, [data-direction="instrument"] .category-controls button { flex: 1; min-height: 36px; padding: 0 10px; font-size: 12px; }
+      .collection-controls, [data-direction="instrument"] .collection-controls { margin-left: 0; gap: 14px; }
+      .collection-controls button, [data-direction="instrument"] .collection-controls button { height: 37px; padding: 0 4px; font-size: 12px; }
+      #specimen-count { font-size: 10px; }
+      .list-hint, [data-direction="instrument"] .list-hint { font-size: 10px; }
+      .specimen-list { display: grid; grid-template-columns: minmax(0, 1fr); }
+      .specimen, .specimen:nth-child(n), .specimen-list.is-filtered .specimen { grid-column: 1; min-height: 178px; }
+      .specimen-open { padding: 15px 18px; }
+      .specimen-sample { padding: 16px 0; }
+      .specimen[data-id="songti"] { --tile-size: 64px; --tile-fluid: 16cqi; }
+      .specimen[data-id="pingfang"] { --tile-size: 33px; --tile-fluid: 9.2cqi; }
+      .specimen[data-id="georgia"] { --tile-size: 33px; --tile-fluid: 9.3cqi; }
+      .specimen[data-id="helvetica"] { --tile-size: 33px; --tile-fluid: 9.3cqi; }
+      .specimen[data-id="menlo"] { --tile-fluid: 5cqi; }
+      .font-name { font-size: 12px; }
+      .card-note { font-size: 10px; }
+      .card-top { font-size: 10px; }
+      .collection-note { font-size: 10px; }
+      .collection-note .note-index { display: none; }
+      #specimen-detail, [data-direction="instrument"] #specimen-detail { display: none; }
+      #type-app[data-mobile-view="detail"] .workspace { grid-template-areas: "detail"; }
+      #type-app[data-mobile-view="detail"] .collection-heading,
+      #type-app[data-mobile-view="detail"] .browse-controls,
+      #type-app[data-mobile-view="detail"] .list-heading,
+      #type-app[data-mobile-view="detail"] .collection,
+      #type-app[data-mobile-view="detail"] .collection-note { display: none; }
+      #type-app[data-mobile-view="detail"] #specimen-detail { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "proof" "edit" "specs" "save" "note"; gap: 19px; padding: 0; background: transparent; border: 0; }
+      .detail-topline, [data-direction="instrument"] .detail-topline { margin-bottom: 16px; flex-wrap: wrap; }
+      #close-specimen { display: flex; order: -1; margin-right: auto; }
+      .detail-kicker { font-size: 10px; }
+      #detail-index, [data-direction="instrument"] #detail-index { margin-left: 0; }
+      #detail-name, [data-direction="instrument"] #detail-name { font-size: 28px; line-height: 1.25; margin-bottom: 10px; }
+      #detail-description, [data-direction="instrument"] #detail-description { font-size: 13px; line-height: 1.8; }
+      .proof-panel { background: var(--surface); border: 1px solid var(--line); }
+      .proof-topline, [data-direction="instrument"] .proof-topline { padding: 12px 15px; border-bottom: 1px solid var(--line); font-size: 9px; }
+      .proof-stage, [data-direction="instrument"] .proof-stage { min-height: 190px; padding: 25px 18px; background: none; }
+      #proof-text, [data-direction="instrument"] #proof-text { font-size: clamp(21px, var(--proof-fluid, 12cqi), 65px); line-height: 1.2; }
+      .proof-bottomline, [data-direction="instrument"] .proof-bottomline { margin: 0 15px; padding: 11px 0; }
+      #detail-glyphs, [data-direction="instrument"] #detail-glyphs { font-size: 20px; }
+      .proof-bottomline > span:last-child, [data-direction="instrument"] .proof-bottomline > span:last-child { font-size: 9px; }
+      .try-control, [data-direction="instrument"] .try-control { display: block; }
+      .try-label, [data-direction="instrument"] .try-label { display: flex; margin: 0 0 8px; padding: 0; font-size: 12px; }
+      #reset-proof, [data-direction="instrument"] #reset-proof { display: inline; margin: 0; font-size: 12px; }
+      #specimen-custom-text, [data-direction="instrument"] #specimen-custom-text { height: 46px; min-height: 46px; padding: 12px; font-size: 14px; }
+      .detail-specs, [data-direction="instrument"] .detail-specs { display: block; padding: 0; border: 0; }
+      .stack-spec, [data-direction="instrument"] .stack-spec { margin-bottom: 16px; }
+      .detail-specs dt, [data-direction="instrument"] .detail-specs dt { font-size: 10px; }
+      .detail-specs dd, [data-direction="instrument"] .detail-specs dd { font-size: 12px; }
+      #detail-stack, [data-direction="instrument"] #detail-stack { font-size: 11px; }
+      #detail-save, [data-direction="instrument"] #detail-save { min-height: 44px; width: 100%; font-size: 13px; }
+      .detail-footnote, [data-direction="instrument"] .detail-footnote { font-size: 11px; margin: 0; }
+      .site-footer, [data-direction="instrument"] .site-footer { margin: 22px 20px 0; padding: 14px 0 19px; font-size: 10px; gap: 7px; }
+      .footer-left { display: block; }
+      .footer-left strong { display: block; margin-bottom: 5px; }
+      [data-direction="instrument"] .specimen, [data-direction="instrument"] .specimen-list.is-filtered .specimen { min-height: 78px; }
+      [data-direction="instrument"] .specimen-open { min-height: 78px; padding: 13px 42px 13px 13px; }
+      [data-direction="instrument"] .font-name { font-size: 13px; }
+      [data-direction="instrument"] .specimen-sample { font-size: 13px; padding: 0; }
+      #specimen-empty, [data-direction="instrument"] #specimen-empty { min-height: 280px; padding: 30px 20px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
 </head>
 <body>
-<header><b>变体画板</b><span>结构互异对比 · 用法 ?a=骨架1.html&amp;b=骨架2.html&amp;c=骨架3.html · 专注键全屏单看</span></header>
-<div id="board">
-  <div class="art"><div class="bar"><b>A</b><button>专注</button></div><iframe id="fa" src="a.html"></iframe></div>
-  <div class="art"><div class="bar"><b>B</b><button>专注</button></div><iframe id="fb" src="b.html"></iframe></div>
-  <div class="art"><div class="bar"><b>C</b><button>专注</button></div><iframe id="fc" src="c.html"></iframe></div>
-</div>
-<script>
-  const q = new URLSearchParams(location.search);
-  for (const [id, k] of [['fa','a'],['fb','b'],['fc','c']]) {
-    const src = q.get(k);
-    if (src) document.getElementById(id).src = src;
-  }
-  document.querySelectorAll('.art button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const art = btn.closest('.art');
-      art.classList.toggle('zen');
-      btn.textContent = art.classList.contains('zen') ? '返回' : '专注';
-    });
-  });
-</script>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-bookmark" viewBox="0 0 24 24"><path d="M6.5 4.5h11v16L12 17l-5.5 3.5z"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M6 18 18 6M6 6h12v12"/></symbol>
+    <symbol id="icon-back" viewBox="0 0 24 24"><path d="m10 6-6 6 6 6M4 12h16"/></symbol>
+  </svg>
+  <nav class="teaching-bar" aria-label="教学视觉方向">
+    <div class="teaching-label"><strong>原创教学</strong><span>同一组字样，两种观看方式</span></div>
+    <div class="direction-switch" role="group" aria-label="选择视觉方向">
+      <button type="button" data-direction="gallery" aria-pressed="true"><span class="direction-number">01</span>展陈 Gallery</button>
+      <button type="button" data-direction="instrument" aria-pressed="false"><span class="direction-number">02</span>工作面 Instrument</button>
+    </div>
+  </nav>
+  <main id="type-app" data-direction="gallery" data-mobile-view="list" data-selected="songti" data-category="all" data-collection="all">
+    <header class="brand-header">
+      <div class="brand" aria-label="字间 LETTERSPACE">
+        <span class="brand-wordmark">字间</span>
+        <div class="brand-latin">LETTERSPACE<small>本机字体观察室</small></div>
+      </div>
+      <div class="brand-caption">不必寻找更多字体。<br>先看看，手边的这几种。</div>
+      <div class="local-label"><b aria-hidden="true"></b>本机字体预览<span>NO REMOTE FONTS · ALL LOCAL</span></div>
+    </header>
+    <div class="workspace">
+      <section class="collection-heading" aria-labelledby="collection-title">
+        <div class="heading-left"><h1 id="collection-title">字样展陈</h1><p class="heading-description">从一笔一画，到一行之间。</p></div>
+        <span class="heading-edition" id="heading-edition">SIX STUDIES / 01—06</span>
+      </section>
+      <div class="browse-controls">
+        <div class="search-field">
+          <svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg>
+          <label class="sr-only" for="specimen-search">搜索字体名称或字样</label>
+          <input id="specimen-search" type="search" placeholder="搜索名称、字样或字体栈" autocomplete="off" spellcheck="false" aria-controls="specimen-list">
+          <button id="clear-search" type="button" aria-label="清空搜索" hidden><svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg></button>
+        </div>
+        <div class="category-controls" role="group" aria-label="字体分类筛选">
+          <button type="button" data-category="all" aria-pressed="true">全部</button>
+          <button type="button" data-category="serif" aria-pressed="false">衬线</button>
+          <button type="button" data-category="sans" aria-pressed="false">无衬线</button>
+          <button type="button" data-category="mono" aria-pressed="false">等宽</button>
+        </div>
+        <div class="collection-controls" role="group" aria-label="收藏筛选">
+          <button type="button" data-collection="all" aria-pressed="true">全部字样</button>
+          <button type="button" data-collection="saved" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-bookmark"/></svg>已收藏 <span id="saved-count">0</span></button>
+        </div>
+      </div>
+      <div class="list-heading">
+        <span id="specimen-count" role="status" aria-live="polite" aria-atomic="true">06 / 06 组标本</span>
+        <span class="list-hint" id="list-hint">选择一组，细看字间</span>
+      </div>
+      <section class="collection" aria-label="标本浏览结果">
+        <ul class="specimen-list" id="specimen-list" aria-label="六组本机字体标本" data-visible-count="6"></ul>
+        <div id="specimen-empty" hidden>
+          <span class="empty-mark" aria-hidden="true">〔 〕</span>
+          <h2 id="empty-title">没有找到相符的字样</h2>
+          <p id="empty-description">试试字体名称、标本中的文字，或换一种分类。</p>
+          <button id="clear-specimen-filters" type="button"><span id="clear-filters-label">清除筛选</span><svg class="icon" aria-hidden="true"><use href="#icon-arrow"/></svg></button>
+        </div>
+      </section>
+      <div class="collection-note"><span class="note-rule">同一句话，也可以有不同的语气。</span><span class="note-index">TYPE IS THE MATERIAL.</span></div>
+      <aside id="specimen-detail" data-id="songti" aria-labelledby="detail-name">
+        <div class="detail-head">
+          <div class="detail-topline">
+            <span class="detail-kicker">当前标本</span>
+            <span id="detail-index">01 / 06</span>
+            <button id="close-specimen" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-back"/></svg>返回列表</button>
+          </div>
+          <h2 id="detail-name" tabindex="-1"></h2>
+          <p id="detail-description"></p>
+        </div>
+        <div class="proof-panel">
+          <div class="proof-topline"><span>LIVE SPECIMEN / 本机试样</span><span id="proof-category"></span></div>
+          <div class="proof-stage"><p id="proof-text" aria-label="当前试样"></p></div>
+          <div class="proof-bottomline"><span id="detail-glyphs"></span><span>字形观察 / GLYPHS</span></div>
+        </div>
+        <div class="try-control">
+          <div class="try-label"><label for="specimen-custom-text">试写一句</label><button type="button" id="reset-proof" disabled>还原字样</button></div>
+          <textarea id="specimen-custom-text" rows="1" maxlength="160" placeholder="写下你的句子，看看它的语气…" spellcheck="false" aria-controls="proof-text"></textarea>
+        </div>
+        <dl class="detail-specs">
+          <div class="stack-spec"><dt>实际 CSS 字体栈 · 按顺序回退</dt><dd><code id="detail-stack"></code></dd></div>
+          <div class="small-specs">
+            <div><dt>分类 / CATEGORY</dt><dd id="detail-category"></dd></div>
+            <div><dt>字样 / CONTENT</dt><dd id="detail-script"></dd></div>
+          </div>
+        </dl>
+        <button id="detail-save" type="button" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-bookmark"/></svg><span id="detail-save-label">收藏这组字样</span></button>
+        <p class="detail-footnote">名称为字体栈首选项，不代表已安装。未命中时由系统回退，字形随系统变化。<span id="detail-filter-note" hidden>这组标本不在当前筛选结果中。</span></p>
+      </aside>
+    </div>
+    <footer class="site-footer">
+      <div class="footer-left"><strong>字间 / 原创虚构教学项目</strong><span>仅用系统字体排印，不售卖或提供字体文件。</span></div>
+      <span id="storage-note">收藏保存在当前浏览器 · 无外部资源</span>
+    </footer>
+    <p class="sr-only" id="app-status" role="status" aria-live="polite" aria-atomic="true"></p>
+  </main>
+  <template id="specimen-template">
+    <li class="specimen">
+      <button class="specimen-open" type="button" data-open-specimen aria-controls="specimen-detail" aria-pressed="false">
+        <span class="card-top"><span class="object-index"></span><span class="family-label"></span><span class="current-label">当前</span></span>
+        <span class="specimen-sample"></span>
+        <span class="card-bottom"><span class="font-name"></span><span class="card-note"></span><svg class="icon card-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg></span>
+      </button>
+      <button class="specimen-save" type="button" data-save-specimen aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-bookmark"/></svg></button>
+    </li>
+  </template>
+  <noscript><p style="padding:24px;font:16px/1.7 sans-serif">字间使用内联 JavaScript 完成筛选、预览与收藏。请启用 JavaScript 后重新打开；无需网络或字体下载。</p></noscript>
+  <script>
+    (() => {
+      'use strict';
+      const specimens = [
+        {
+          id: 'songti', name: 'Songti SC · 宋体', category: 'serif', categoryName: '衬线 / Serif', script: '中文与标点', lang: 'zh-CN',
+          stack: '"Songti SC", STSong, serif', sample: '字里有风。', glyphs: '永 田 人 ，。',
+          note: '轻重之间，自有呼吸。', description: '看横与竖的轻重，也看字与字之间的空隙。短短五字，让宋体的笔意慢下来。', weight: 400, style: 'normal'
+        },
+        {
+          id: 'pingfang', name: 'PingFang SC · 苹方', category: 'sans', categoryName: '无衬线 / Sans', script: '中文短句', lang: 'zh-CN',
+          stack: '"PingFang SC", "Microsoft YaHei", sans-serif', sample: '把日常，\n排得刚刚好。', glyphs: '日 常 间 012',
+          note: '不抢目光，也不失分寸。', description: '用长短两行观察字面与行距。减少笔画的装饰后，文字之间的节奏更容易被看见。', weight: 400, style: 'normal'
+        },
+        {
+          id: 'baskerville', name: 'Baskerville', category: 'serif', categoryName: '衬线 / Serif', script: '英文 · 斜体试样', lang: 'en',
+          stack: 'Baskerville, Georgia, serif', sample: 'Almost\npoetry.', glyphs: 'Aa Qq & 012',
+          note: 'A little slant. A different voice.', description: '以 italic 样式观察衬线与倾斜的共同节奏。看看大写 A、下降的 y，以及句点留下的停顿。', weight: 400, style: 'italic'
+        },
+        {
+          id: 'menlo', name: 'Menlo', category: 'mono', categoryName: '等宽 / Mono', script: '英文与代码符号', lang: 'en',
+          stack: 'Menlo, Consolas, monospace', sample: 'if (space) {\n  let ideas = grow();\n}', glyphs: '0O 1l {} []',
+          note: 'Every character has its place.', description: '让字母、空格和括号各占一个位置。比较 0 与 O、1 与 l；等宽的秩序也可以是一种表情。', weight: 400, style: 'normal'
+        },
+        {
+          id: 'georgia', name: 'Georgia', category: 'serif', categoryName: '衬线 / Serif', script: '英文长短行', lang: 'en',
+          stack: 'Georgia, "Times New Roman", serif', sample: 'The shape of\na quiet thought.', glyphs: 'Ag fi & 0123',
+          note: 'Read slowly. Notice the spaces.', description: '把一个安静的念头排成两行。观察小写字母的内白，再比较它与斜体衬线试样的语气。', weight: 400, style: 'normal'
+        },
+        {
+          id: 'helvetica', name: 'Helvetica Neue', category: 'sans', categoryName: '无衬线 / Sans', script: '英文短句', lang: 'en',
+          stack: '"Helvetica Neue", Arial, sans-serif', sample: 'Make room\nfor what matters.', glyphs: 'Aa Rr 0123',
+          note: 'Clarity, without raising its voice.', description: '不依赖装饰，用字母的形状和行的长度建立语气。观察圆弧、直线，以及两行之间的重心。', weight: 500, style: 'normal'
+        }
+      ];
+      const $ = (selector) => document.querySelector(selector);
+      const app = $('#type-app');
+      const list = $('#specimen-list');
+      const detail = $('#specimen-detail');
+      const search = $('#specimen-search');
+      const customText = $('#specimen-custom-text');
+      const mobile = window.matchMedia('(max-width: 760px)');
+      const storageKey = 'letterspace.saved.v1';
+      const validIds = new Set(specimens.map(item => item.id));
+      const cards = new Map();
+      let storageAvailable = true;
+      let storedSaved = [];
+      try {
+        const stored = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        if (Array.isArray(stored)) storedSaved = stored.filter(id => validIds.has(id));
+      } catch (_) { storageAvailable = false; }
+      const state = {
+        direction: new URLSearchParams(location.search).get('direction') === 'instrument' ? 'instrument' : 'gallery',
+        category: 'all', collection: 'all', query: '', selected: specimens[0].id,
+        saved: new Set(storedSaved), drafts: new Map(), mobileView: 'list', listScroll: 0
+      };
+      const normalize = text => text.normalize('NFKC').toLocaleLowerCase().replace(/\s+/g, ' ').trim();
+      const searchText = new Map(specimens.map(item => [item.id, normalize([item.name, item.sample, item.stack, item.category, item.categoryName, item.script].join(' '))]));
+      const selectedItem = () => specimens.find(item => item.id === state.selected);
+      const announce = message => { $('#app-status').textContent = message; };
+      const setPressed = (button, pressed) => button.setAttribute('aria-pressed', String(pressed));
+      function updateStorageNote() {
+        $('#storage-note').textContent = storageAvailable ? '收藏保存在当前浏览器 · 无外部资源' : '浏览器存储不可用 · 收藏仅保留在本次页面中';
+      }
+      function persistSaved() {
+        try { localStorage.setItem(storageKey, JSON.stringify([...state.saved])); storageAvailable = true; }
+        catch (_) { storageAvailable = false; }
+        updateStorageNote();
+      }
+      function matching(item) {
+        return (state.category === 'all' || item.category === state.category)
+          && (state.collection === 'all' || state.saved.has(item.id))
+          && searchText.get(item.id).includes(normalize(state.query));
+      }
+      function applyFont(element, item) {
+        element.style.setProperty('--font-stack', item.stack);
+        element.style.setProperty('--sample-weight', item.weight);
+        element.style.setProperty('--sample-style', item.style);
+      }
+      specimens.forEach((item, index) => {
+        const fragment = $('#specimen-template').content.cloneNode(true);
+        const card = fragment.querySelector('.specimen');
+        card.dataset.id = item.id;
+        card.dataset.category = item.category;
+        applyFont(card, item);
+        card.querySelector('.object-index').textContent = String(index + 1).padStart(2, '0');
+        card.querySelector('.family-label').textContent = item.categoryName.toUpperCase();
+        card.querySelector('.font-name').textContent = item.name;
+        card.querySelector('.card-note').textContent = item.note;
+        const sample = card.querySelector('.specimen-sample');
+        sample.textContent = item.sample;
+        sample.lang = item.lang;
+        const open = card.querySelector('[data-open-specimen]');
+        open.dataset.openSpecimen = item.id;
+        open.setAttribute('aria-label', `查看 ${item.name} 的字样与详情`);
+        const save = card.querySelector('[data-save-specimen]');
+        save.dataset.saveSpecimen = item.id;
+        cards.set(item.id, card);
+        list.append(fragment);
+      });
+      function updateSaveButtons() {
+        specimens.forEach(item => {
+          const saved = state.saved.has(item.id);
+          const card = cards.get(item.id);
+          const save = card.querySelector('[data-save-specimen]');
+          card.dataset.saved = String(saved);
+          setPressed(save, saved);
+          save.setAttribute('aria-label', `${saved ? '取消收藏' : '收藏'} ${item.name}`);
+          save.title = `${saved ? '取消收藏' : '收藏'} ${item.name}`;
+        });
+        const saved = state.saved.has(state.selected);
+        setPressed($('#detail-save'), saved);
+        $('#detail-save-label').textContent = saved ? '已收藏 · 取消收藏' : '收藏这组字样';
+        $('#detail-save').setAttribute('aria-label', `${saved ? '取消收藏' : '收藏'} ${selectedItem().name}`);
+        $('#saved-count').textContent = state.saved.size;
+        app.dataset.savedCount = state.saved.size;
+      }
+      function renderFilters() {
+        let count = 0;
+        specimens.forEach(item => {
+          const visible = matching(item);
+          const card = cards.get(item.id);
+          card.hidden = !visible;
+          card.dataset.selected = String(item.id === state.selected);
+          setPressed(card.querySelector('[data-open-specimen]'), item.id === state.selected);
+          if (visible) count++;
+        });
+        document.querySelectorAll('button[data-category]').forEach(button => setPressed(button, button.dataset.category === state.category));
+        document.querySelectorAll('button[data-collection]').forEach(button => setPressed(button, button.dataset.collection === state.collection));
+        app.dataset.category = state.category;
+        app.dataset.collection = state.collection;
+        app.dataset.selected = state.selected;
+        app.dataset.resultCount = count;
+        list.dataset.visibleCount = count;
+        list.classList.toggle('is-filtered', count !== specimens.length);
+        list.hidden = count === 0;
+        $('#clear-search').hidden = state.query.length === 0;
+        $('#specimen-count').textContent = `${String(count).padStart(2, '0')} / 06 组标本`;
+        $('#specimen-empty').hidden = count !== 0;
+        const emptySaved = state.collection === 'saved' && state.saved.size === 0;
+        $('#empty-title').textContent = emptySaved ? '还没有收藏字样' : '没有找到相符的字样';
+        $('#empty-description').textContent = emptySaved ? '点字样右上角的书签，留住你想细看的节奏。收藏后，就能在这里再次相遇。' : '试试字体名称、标本中的文字，或换一种分类。也可以清除筛选，重新看看全部六组。';
+        $('#clear-filters-label').textContent = emptySaved ? '浏览全部标本' : '清除筛选';
+        $('#detail-filter-note').hidden = matching(selectedItem());
+        updateSaveButtons();
+      }
+      function renderProof() {
+        const item = selectedItem();
+        const draft = state.drafts.get(item.id) || '';
+        const text = draft.trim() ? draft : item.sample;
+        const preview = $('#proof-text');
+        preview.textContent = text;
+        preview.lang = draft.trim() ? 'und' : item.lang;
+        // Size follows the longest line; long custom text remains wrappable, never clipped.
+        const units = Math.max(...text.split('\n').map(line => Array.from(line).reduce((total, char) => total + (/[^\u0000-\u00ff]/.test(char) ? 1 : .57), 0)), 1);
+        detail.style.setProperty('--proof-fluid', `${Math.max(3.8, Math.min(20, 89 / units))}cqi`);
+        detail.dataset.preview = draft.trim() ? 'custom' : 'original';
+        $('#reset-proof').disabled = draft.length === 0;
+      }
+      function renderDetail() {
+        const item = selectedItem();
+        detail.dataset.id = item.id;
+        detail.dataset.category = item.category;
+        applyFont(detail, item);
+        $('#detail-name').textContent = item.name;
+        $('#detail-index').textContent = `${String(specimens.indexOf(item) + 1).padStart(2, '0')} / 06`;
+        $('#detail-description').textContent = item.description;
+        $('#detail-stack').textContent = item.stack;
+        $('#detail-category').textContent = item.categoryName;
+        $('#detail-script').textContent = item.script;
+        $('#proof-category').textContent = item.category.toUpperCase();
+        $('#detail-glyphs').textContent = item.glyphs;
+        $('#detail-glyphs').lang = item.lang;
+        customText.value = state.drafts.get(item.id) || '';
+        renderProof();
+      }
+      function renderDirection(updateUrl) {
+        app.dataset.direction = state.direction;
+        document.querySelectorAll('button[data-direction]').forEach(button => setPressed(button, button.dataset.direction === state.direction));
+        const instrument = state.direction === 'instrument';
+        $('#collection-title').textContent = instrument ? '字样索引' : '字样展陈';
+        $('#heading-edition').textContent = instrument ? 'INDEX / 06' : 'SIX STUDIES / 01—06';
+        $('#list-hint').textContent = instrument ? '选择对象 → 右侧试样' : '选择一组，细看字间';
+        if (mobile.matches && instrument) $('#list-hint').textContent = '选择对象，打开试样';
+        document.title = `字间 LETTERSPACE — ${instrument ? '字体工作面' : '字样展陈'}`;
+        if (updateUrl) {
+          try {
+            const url = new URL(location.href);
+            url.searchParams.set('direction', state.direction);
+            history.replaceState(null, '', url);
+          } catch (_) { /* Some file:// contexts disallow history changes. */ }
+        }
+      }
+      function openSpecimen(id) {
+        state.selected = id;
+        renderDetail();
+        renderFilters();
+        if (mobile.matches) {
+          state.listScroll = window.scrollY;
+          state.mobileView = 'detail';
+          app.dataset.mobileView = state.mobileView;
+          window.scrollTo({ top: 0, behavior: 'instant' });
+          $('#detail-name').focus({ preventScroll: true });
+        }
+        announce(`当前标本：${selectedItem().name}`);
+      }
+      function closeSpecimen() {
+        state.mobileView = 'list';
+        app.dataset.mobileView = state.mobileView;
+        if (mobile.matches) {
+          window.scrollTo({ top: state.listScroll, behavior: 'instant' });
+          const card = cards.get(state.selected);
+          if (!card.hidden) card.querySelector('[data-open-specimen]').focus({ preventScroll: true });
+          else search.focus({ preventScroll: true });
+        }
+      }
+      function toggleSaved(id) {
+        const active = document.activeElement;
+        const activeCard = active ? active.closest('.specimen') : null;
+        if (state.saved.has(id)) state.saved.delete(id);
+        else state.saved.add(id);
+        persistSaved();
+        renderFilters();
+        // Removing the focused result from a saved-only list must not strand keyboard focus.
+        if (activeCard && activeCard.hidden) {
+          const next = specimens.find(item => matching(item));
+          if (next) cards.get(next.id).querySelector('[data-save-specimen]').focus();
+          else $('#clear-specimen-filters').focus();
+        }
+        const item = specimens.find(specimen => specimen.id === id);
+        announce(`${state.saved.has(id) ? '已收藏' : '已取消收藏'} ${item.name}。共有 ${state.saved.size} 组收藏。`);
+      }
+      list.addEventListener('click', event => {
+        const save = event.target.closest('[data-save-specimen]');
+        const open = event.target.closest('[data-open-specimen]');
+        if (save) toggleSaved(save.dataset.saveSpecimen);
+        else if (open) openSpecimen(open.dataset.openSpecimen);
+      });
+      document.querySelectorAll('button[data-direction]').forEach(button => button.addEventListener('click', () => {
+        state.direction = button.dataset.direction;
+        renderDirection(true);
+        announce(`已切换为${state.direction === 'gallery' ? '展陈' : '工作面'}方向，筛选、当前标本与收藏保持不变。`);
+      }));
+      document.querySelectorAll('button[data-category]').forEach(button => button.addEventListener('click', () => {
+        state.category = button.dataset.category;
+        renderFilters();
+      }));
+      document.querySelectorAll('button[data-collection]').forEach(button => button.addEventListener('click', () => {
+        state.collection = button.dataset.collection;
+        renderFilters();
+      }));
+      search.addEventListener('input', () => { state.query = search.value; renderFilters(); });
+      $('#clear-search').addEventListener('click', () => {
+        search.value = '';
+        state.query = '';
+        renderFilters();
+        search.focus();
+      });
+      $('#clear-specimen-filters').addEventListener('click', () => {
+        state.query = '';
+        state.category = 'all';
+        state.collection = 'all';
+        search.value = '';
+        renderFilters();
+        search.focus({ preventScroll: true });
+        announce('已清除筛选，显示全部六组标本。');
+      });
+      $('#detail-save').addEventListener('click', () => toggleSaved(state.selected));
+      $('#close-specimen').addEventListener('click', closeSpecimen);
+      customText.addEventListener('input', () => {
+        state.drafts.set(state.selected, customText.value);
+        renderProof();
+      });
+      $('#reset-proof').addEventListener('click', () => {
+        state.drafts.delete(state.selected);
+        customText.value = '';
+        renderProof();
+        customText.focus();
+        announce('已还原当前标本的原始字样。');
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key !== 'Escape' || event.isComposing) return;
+        if (document.activeElement === search && state.query) {
+          search.value = '';
+          state.query = '';
+          renderFilters();
+          event.preventDefault();
+        } else if (mobile.matches && state.mobileView === 'detail') {
+          closeSpecimen();
+          event.preventDefault();
+        }
+      });
+      mobile.addEventListener('change', () => {
+        const focusedDetail = detail.contains(document.activeElement);
+        if (mobile.matches) {
+          state.mobileView = focusedDetail ? 'detail' : 'list';
+          app.dataset.mobileView = state.mobileView;
+        }
+        renderDirection(false);
+      });
+      renderDirection(false);
+      renderDetail();
+      renderFilters();
+      updateStorageNote();
+    })();
+  </script>
 </body>
 </html>

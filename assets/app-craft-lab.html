@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="zh-CN" data-layout="refined" data-theme="light" data-density="comfortable" data-page="all">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'none'; font-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Fold · 素材工作台关系精修演示</title>
+  <style>
+    /* Shared tokens: both layouts use the same palette and the same application. */
+    :root {
+      color-scheme: light;
+      --canvas: #e9ece7;
+      --surface: #fafbf8;
+      --surface-raised: #ffffff;
+      --surface-soft: #f0f2ed;
+      --text: #232d28;
+      --muted: #5e6b63;
+      --line: #d7ddd5;
+      --line-soft: #e5e9e2;
+      --accent: #22644d;
+      --accent-soft: #e1eee4;
+      --hover: #edf1eb;
+      --focus: #1e7868;
+      --shadow: 0 16px 52px #25392c0c, 0 2px 5px #25392c05;
+      --row-height: 60px;
+      --content-padding: 26px;
+      --group-gap: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      background: var(--canvas);
+      color: var(--text);
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --canvas: #171c19;
+      --surface: #222925;
+      --surface-raised: #29312c;
+      --surface-soft: #1e2521;
+      --text: #edf0e9;
+      --muted: #acb8ae;
+      --line: #49534b;
+      --line-soft: #374139;
+      --accent: #a0d7b8;
+      --accent-soft: #304b3b;
+      --hover: #2d3830;
+      --focus: #a2e8cc;
+      --shadow: 0 16px 52px #00000026;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 0; }
+    button, input { font: inherit; }
+    button { color: inherit; cursor: pointer; }
+    button, input { -webkit-tap-highlight-color: transparent; }
+    button { touch-action: manipulation; }
+    button:focus-visible, input:focus-visible, [tabindex="-1"]:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+    button, input { transition: background-color 120ms ease, border-color 120ms ease; }
+    button:disabled { cursor: default; }
+    [hidden] { display: none !important; }
+    h1, h2, h3, p, figure { margin: 0; }
+    svg { display: block; flex-shrink: 0; }
+    .icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    .page-wrap { width: min(1440px, 100%); margin: 0 auto; padding: 26px 30px 92px; }
+    .symbol-library { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+    /* The teaching rail is deliberately outside the simulated app window. */
+    .teaching { margin-bottom: 22px; }
+    .teaching-top { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .teaching h2 { font-size: 13px; font-weight: 600; }
+    .teaching-description { margin-top: 5px; color: var(--muted); font-size: 12px; max-width: 800px; }
+    .layout-control { display: flex; flex-shrink: 0; padding: 3px; gap: 3px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 8px; }
+    .layout-control button { min-height: 36px; padding: 6px 15px; border: 1px solid transparent; background: transparent; border-radius: 5px; font-size: 12px; }
+    .layout-control button:hover { background: var(--hover); }
+    .layout-control button[aria-pressed="true"] { background: var(--surface-raised); border-color: var(--line); font-weight: 600; }
+    .observations { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 20px 0 12px; padding: 0; list-style: none; }
+    .observations li { padding-left: 12px; border-left: 1px solid var(--line); }
+    .observations strong { display: block; font-size: 12px; font-weight: 600; }
+    .observations span { display: block; color: var(--muted); margin-top: 4px; font-size: 12px; }
+    .case-note { color: var(--muted); font-size: 11px; }
+
+    /* Standard layout: a usable, familiar table-and-panel desktop arrangement. */
+    .app-window { display: grid; grid-template-columns: 188px minmax(0, 1fr); height: clamp(620px, calc(100vh - 240px), 850px); min-height: 0; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+    .sidebar { display: flex; flex-direction: column; min-width: 0; background: var(--surface-soft); padding: 24px 14px 18px; border-right: 1px solid var(--line); border-radius: 12px 0 0 12px; }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 10px 26px; }
+    .brand-mark { width: 30px; height: 34px; color: var(--accent); }
+    .brand-name { font-size: 24px; font-weight: 650; letter-spacing: -1.1px; line-height: 1.2; }
+    .brand-caption { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .nav-label { color: var(--muted); padding: 0 12px; margin-bottom: 9px; font-size: 11px; }
+    .navigation { display: grid; gap: 5px; }
+    .nav-button { display: flex; align-items: center; width: 100%; gap: 10px; padding: 10px 12px; border: 1px solid transparent; border-radius: 6px; background: transparent; text-align: left; font-size: 13px; min-height: 42px; }
+    .nav-button:hover { background: var(--hover); }
+    .nav-button[aria-current="page"] { background: var(--accent-soft); color: var(--accent); border-color: var(--line); font-weight: 600; }
+    .nav-button .count { margin-left: auto; font-size: 12px; font-variant-numeric: tabular-nums; }
+    .nav-settings { margin-top: 18px; }
+    .sidebar-foot { margin-top: auto; padding: 30px 10px 0; color: var(--muted); font-size: 11px; }
+    .sidebar-foot strong { display: block; color: var(--text); font-size: 12px; font-weight: 500; margin-bottom: 5px; }
+    .offline-dot { display: inline-block; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; margin-right: 6px; }
+    .workspace { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+    .topbar { display: flex; flex-shrink: 0; justify-content: space-between; align-items: center; min-height: 76px; gap: 24px; padding: 14px var(--content-padding); border-bottom: 1px solid var(--line); }
+    .page-title-wrap { min-width: 0; }
+    .breadcrumb { font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+    .title-line { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+    h1 { font-size: 22px; font-weight: 600; letter-spacing: -.5px; }
+    .page-count { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .search-box { position: relative; display: flex; align-items: center; flex: 0 1 284px; min-width: 160px; }
+    .search-box > .icon { position: absolute; left: 11px; color: var(--muted); pointer-events: none; width: 16px; height: 16px; }
+    .search-box input { width: 100%; min-width: 0; height: 38px; color: var(--text); background: var(--surface-raised); border: 1px solid var(--line); border-radius: 6px; padding: 8px 38px 8px 35px; font-size: 12px; }
+    .search-box input::placeholder { color: var(--muted); opacity: 1; }
+    input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
+    .search-clear { position: absolute; right: 4px; }
+    .icon-button { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 6px; border: 1px solid transparent; border-radius: 5px; background: transparent; }
+    .icon-button:hover { background: var(--hover); border-color: var(--line); }
+    .asset-workspace { display: grid; grid-template-columns: minmax(0, 1fr); flex: 1; min-width: 0; min-height: 0; overflow: hidden; }
+    .asset-workspace[data-inspector="open"] { grid-template-columns: minmax(0, 1fr) 280px; }
+    .list-pane { min-width: 0; min-height: 0; overflow: auto; padding: 22px var(--content-padding); }
+    .list-intro { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; font-size: 12px; color: var(--muted); }
+    .list-intro strong { color: var(--text); font-size: 13px; font-weight: 500; }
+    .sort-note { white-space: nowrap; font-size: 11px; }
+    .asset-table { border: 1px solid var(--line); border-radius: 7px; padding: 0 10px 10px; background: var(--surface-raised); }
+    .columns, .asset-row { display: grid; grid-template-columns: minmax(135px, 1fr) 96px 78px 64px 36px; gap: 10px; align-items: center; }
+    .columns { min-height: 38px; color: var(--muted); font-size: 11px; border-bottom: 1px solid var(--line); }
+    .columns .favorite-heading { text-align: center; }
+    .asset-group + .asset-group { margin-top: var(--group-gap); }
+    .group-heading { display: flex; align-items: baseline; gap: 7px; padding: 13px 0 8px; font-size: 12px; font-weight: 600; }
+    .group-heading span { color: var(--muted); font-size: 11px; font-weight: 400; font-variant-numeric: tabular-nums; }
+    .asset-list { padding: 0; margin: 0; list-style: none; }
+    .asset-row { min-height: var(--row-height); border-bottom: 1px solid var(--line-soft); border-radius: 3px; padding: 4px 0; position: relative; }
+    .asset-row:last-child { border-bottom-color: transparent; }
+    .asset-row:hover { background: var(--hover); }
+    .asset-row[data-selected="true"], .asset-row[data-selected="true"]:hover { background: var(--accent-soft); box-shadow: inset 2px 0 var(--accent); }
+    .asset-select { display: flex; align-items: center; align-self: stretch; min-width: 0; gap: 9px; padding: 6px; border: 0; border-radius: 3px; text-align: left; background: transparent; }
+    .asset-select:focus-visible { outline-offset: -2px; }
+    .file-glyph { display: flex; align-items: center; justify-content: center; width: 32px; height: 36px; flex: 0 0 32px; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; }
+    .file-glyph .icon { width: 19px; height: 19px; }
+    .file-copy { display: block; min-width: 0; }
+    .file-name { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; font-weight: 500; }
+    .file-format { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+    .purpose { font-size: 12px; min-width: 0; }
+    .status { display: block; color: var(--muted); font-size: 11px; margin-top: 3px; }
+    .status[data-status="待校对"] { color: var(--accent); font-weight: 500; }
+    .modified, .file-size { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .favorite-button { width: 32px; height: 32px; color: var(--muted); }
+    .favorite-button[aria-pressed="true"] { color: var(--accent); }
+    .favorite-button[aria-pressed="true"] .icon { fill: var(--accent); stroke: var(--accent); }
+    .list-foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; color: var(--muted); font-size: 11px; margin-top: 20px; }
+    .empty-state { padding: 66px 18px; text-align: center; }
+    .empty-state > .icon { margin: 0 auto 16px; width: 30px; height: 30px; color: var(--muted); }
+    .empty-state h2 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+    .empty-state p { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; max-width: 360px; margin: 0 auto 20px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 36px; padding: 7px 12px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: 6px; font-size: 12px; }
+    .button:hover { background: var(--hover); }
+    .button-accent { background: var(--accent-soft); color: var(--accent); border-color: var(--line); font-weight: 600; }
+    .button-accent:hover { background: var(--hover); }
+
+    /* The inspector is optional. On narrow windows it becomes a returnable view. */
+    .inspector { min-width: 0; min-height: 0; overflow: auto; padding: 20px; background: var(--surface-soft); border-left: 1px solid var(--line); border-radius: 0 0 12px 0; }
+    .inspector-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; color: var(--muted); font-size: 12px; }
+    .back-button { display: none; }
+    .preview { padding: 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-raised); }
+    .sample-art { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: 2px; }
+    .preview figcaption { color: var(--muted); font-size: 10px; line-height: 1.6; margin-top: 8px; }
+    .inspector-title { font-size: 17px; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; margin-top: 22px; }
+    .inspector-description { font-size: 12px; line-height: 1.8; color: var(--muted); margin-top: 7px; }
+    .inspector-actions { margin: 16px 0 20px; }
+    .inspector-actions .button { width: 100%; }
+    .inspector-actions .button[aria-pressed="true"] .icon { fill: currentColor; }
+    .detail-heading { font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+    .metadata { margin: 0; padding: 12px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: 6px; }
+    .metadata > div { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 10px; padding: 6px 0; font-size: 12px; }
+    .metadata dt { color: var(--muted); }
+    .metadata dd { margin: 0; overflow-wrap: anywhere; }
+    .object-note { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 16px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+    .object-note strong { display: block; margin-bottom: 5px; font-weight: 500; color: var(--text); }
+
+    .settings-pane { min-height: 0; flex: 1; overflow: auto; padding: 30px var(--content-padding) 44px; }
+    .settings-intro { max-width: 620px; margin-bottom: 26px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+    .settings-section { max-width: 760px; margin-bottom: 30px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-raised); padding: 20px; }
+    .settings-section h2 { font-size: 15px; margin-bottom: 6px; font-weight: 600; }
+    .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 0; border-bottom: 1px solid var(--line-soft); }
+    .setting-row:last-child { padding-bottom: 4px; border-bottom: 0; }
+    .setting-name { font-size: 13px; font-weight: 500; }
+    .setting-help { margin-top: 5px; max-width: 470px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+    .switch-button { display: inline-flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 6px; min-height: 36px; border: 1px solid transparent; background: transparent; border-radius: 5px; flex-shrink: 0; font-size: 12px; }
+    .switch-button:hover { background: var(--hover); }
+    .switch-track { display: inline-flex; align-items: center; width: 32px; height: 20px; border-radius: 20px; border: 1px solid var(--muted); background: var(--surface-soft); padding: 3px; }
+    .switch-track::after { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--muted); }
+    .switch-button[aria-checked="true"] .switch-track { background: var(--accent); border-color: var(--accent); justify-content: flex-end; }
+    .switch-button[aria-checked="true"] .switch-track::after { background: var(--surface); }
+    .settings-note { color: var(--muted); font-size: 12px; line-height: 1.9; margin-top: 12px; }
+    .settings-note code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11px; overflow-wrap: anywhere; }
+    .settings-facts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 18px; color: var(--muted); font-size: 12px; }
+    .settings-facts strong { color: var(--text); font-weight: 500; }
+
+    /* Refined is this case's choice, not a universal upgrade or a recolor. */
+    :root[data-layout="refined"] { --content-padding: 28px; --row-height: 62px; --group-gap: 20px; }
+    [data-layout="refined"] .app-window { grid-template-columns: 178px minmax(0, 1fr); }
+    [data-layout="refined"] .sidebar { border-right-color: var(--line-soft); }
+    [data-layout="refined"] .nav-button { border-radius: 5px; }
+    [data-layout="refined"] .nav-button[aria-current="page"] { border-color: transparent; }
+    [data-layout="refined"] .topbar { min-height: 84px; border-bottom-color: var(--line-soft); }
+    [data-layout="refined"] h1 { font-size: 25px; font-weight: 600; letter-spacing: -.8px; }
+    [data-layout="refined"] .list-pane { padding-top: 25px; }
+    [data-layout="refined"] .list-intro { margin-bottom: 20px; }
+    [data-layout="refined"] .asset-table { border: 0; border-radius: 0; padding: 0; background: transparent; }
+    [data-layout="refined"] .columns { min-height: 32px; border-bottom-color: var(--line-soft); font-size: 12px; letter-spacing: 0; }
+    [data-layout="refined"] .group-heading { padding-top: 18px; padding-bottom: 10px; font-weight: 500; color: var(--muted); font-size: 11px; letter-spacing: .5px; }
+    [data-layout="refined"] .file-glyph { border: 0; background: transparent; flex-basis: 26px; width: 26px; }
+    [data-layout="refined"] .file-name { font-size: 14px; font-weight: 550; letter-spacing: -.15px; }
+    [data-layout="refined"] .file-format { font-size: 11px; letter-spacing: .3px; margin-top: 3px; }
+    [data-layout="refined"] .modified,
+    [data-layout="refined"] .file-size { font-variant-numeric: tabular-nums; font-size: 12px; }
+    [data-layout="refined"] .file-size,
+    [data-layout="refined"] .size-heading { text-align: right; padding-right: 4px; }
+    [data-layout="refined"] .inspector { border-left-color: var(--line-soft); padding: 22px; }
+    [data-layout="refined"] .preview { border: 0; background: transparent; padding: 0; }
+    [data-layout="refined"] .preview figcaption { margin-top: 10px; }
+    [data-layout="refined"] .inspector-title { font-size: 18px; letter-spacing: -.35px; margin-top: 25px; }
+    [data-layout="refined"] .metadata { border: 0; padding: 0; background: transparent; border-radius: 0; }
+    [data-layout="refined"] .metadata dd { text-align: right; font-variant-numeric: tabular-nums; }
+    [data-layout="refined"] .detail-heading { padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+    [data-layout="refined"] .settings-section { padding: 0 0 26px; border: 0; border-bottom: 1px solid var(--line); background: transparent; border-radius: 0; }
+    [data-layout="refined"] .settings-section h2 { font-size: 17px; }
+
+    /* Density is independent of layout and applies to all three pages. */
+    :root[data-density="compact"] { --row-height: 50px; --group-gap: 12px; }
+    [data-density="compact"] .topbar { min-height: 72px; padding-top: 10px; padding-bottom: 10px; }
+    [data-density="compact"] .nav-button { min-height: 36px; padding-top: 7px; padding-bottom: 7px; }
+    [data-density="compact"] .list-pane { padding-top: 16px; padding-bottom: 16px; }
+    [data-density="compact"] .list-intro { margin-bottom: 12px; }
+    [data-density="compact"] .group-heading { padding-top: 10px; padding-bottom: 6px; }
+    [data-density="compact"] .inspector { padding-top: 15px; padding-bottom: 15px; }
+    [data-density="compact"] .inspector-title { margin-top: 16px; }
+    [data-density="compact"] .metadata > div { padding-top: 4px; padding-bottom: 4px; }
+    [data-density="compact"] .settings-pane { padding-top: 20px; }
+    [data-density="compact"] .settings-section { margin-bottom: 20px; }
+    [data-density="compact"] .setting-row { padding-top: 12px; padding-bottom: 12px; }
+
+    .feedback { position: fixed; right: 24px; bottom: 20px; z-index: 10; display: flex; align-items: center; gap: 12px; width: max-content; max-width: min(480px, calc(100% - 32px)); padding: 10px 10px 10px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-raised); box-shadow: var(--shadow); }
+    .feedback-message { font-size: 12px; overflow-wrap: anywhere; min-width: 0; }
+    .feedback .button, .feedback .icon-button { flex-shrink: 0; }
+
+    @media (max-width: 1050px) {
+      .page-wrap { padding: 22px 22px 88px; }
+      .app-window, [data-layout="refined"] .app-window { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+      .sidebar { flex-direction: row; align-items: center; gap: 24px; padding: 14px 22px; border-right: 0; border-bottom: 1px solid var(--line); border-radius: 12px 12px 0 0; }
+      .brand { padding: 0; }
+      .brand-name { font-size: 22px; }
+      .brand-caption { display: none; }
+      .nav-label, .sidebar-foot { display: none; }
+      .navigation { display: flex; gap: 6px; flex: 1; }
+      .nav-button { width: auto; gap: 8px; }
+      .nav-settings { margin: 0 0 0 auto; }
+      .nav-button .count { margin-left: 6px; }
+      .asset-workspace[data-inspector="open"] { grid-template-columns: minmax(0, 1fr) 268px; }
+    }
+
+    @media (max-width: 920px) {
+      .teaching-top { align-items: flex-start; }
+      .observations { gap: 14px; }
+      .app-window { min-height: 620px; }
+      .asset-workspace[data-inspector="open"] { grid-template-columns: minmax(0, 1fr); }
+      .asset-workspace[data-inspector="open"] .list-pane { display: none; }
+      .inspector { border-left: 0; border-radius: 0 0 12px 12px; }
+      .inspector-close { display: none; }
+      .back-button { display: inline-flex; }
+      .inspector-body { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 30px; }
+      .inspector-body .preview { grid-column: 1; grid-row: 1 / 6; align-self: start; }
+      .inspector-body > :not(.preview) { grid-column: 2; }
+      .inspector-title, [data-layout="refined"] .inspector-title { margin-top: 0; }
+      .inspector-actions { margin-bottom: 22px; }
+      .object-note { margin-top: 22px; }
+    }
+
+    @media (max-width: 620px) {
+      .page-wrap { padding: 18px 12px 94px; }
+      .app-window { height: auto; min-height: 620px; overflow: visible; }
+      .asset-workspace, .list-pane, .inspector, .settings-pane { overflow: visible; }
+      .teaching-top { flex-direction: column; gap: 12px; }
+      .layout-control { width: 100%; }
+      .layout-control button { flex: 1; min-height: 40px; }
+      .observations { grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 14px; }
+      .observations span { margin-top: 2px; }
+      .case-note { line-height: 1.7; }
+      .sidebar { flex-wrap: wrap; gap: 14px; padding: 15px 14px; }
+      .brand { width: 100%; gap: 8px; }
+      .brand-mark { width: 23px; height: 27px; }
+      .brand-caption { display: inline; margin-left: 8px; }
+      .brand > div { display: flex; align-items: baseline; }
+      .navigation { width: 100%; gap: 4px; }
+      .nav-button { flex: 1; justify-content: center; gap: 6px; padding-left: 6px; padding-right: 6px; min-height: 40px; font-size: 12px; white-space: nowrap; }
+      .nav-settings { margin-left: 0; }
+      .nav-button .icon { width: 15px; height: 15px; }
+      .nav-button .count { margin-left: 0; font-size: 11px; }
+      .topbar { flex-wrap: wrap; gap: 16px; padding: 20px 16px; }
+      [data-layout="refined"] .topbar { min-height: 0; }
+      .search-box { flex-basis: 100%; }
+      .search-box input { height: 40px; font-size: 13px; }
+      .list-pane, [data-layout="refined"] .list-pane { padding-left: 14px; padding-right: 14px; }
+      .list-intro { align-items: baseline; gap: 8px; }
+      .list-intro strong { font-size: 12px; }
+      .sort-note { font-size: 10px; }
+      .columns, .asset-row { grid-template-columns: minmax(0, 1fr) 64px 36px; gap: 6px; }
+      .columns .purpose-heading, .columns .modified-heading,
+      .asset-row .purpose, .asset-row .modified { display: none; }
+      .file-name, [data-layout="refined"] .file-name { font-size: 13px; }
+      .file-glyph { display: none; }
+      .file-format { font-size: 11px; }
+      .asset-table { padding-left: 6px; padding-right: 6px; }
+      .file-size { font-size: 11px; }
+      .inspector-body { display: block; max-width: 380px; }
+      .inspector-title, [data-layout="refined"] .inspector-title { margin-top: 22px; }
+      .preview { max-width: 380px; }
+      .settings-pane { padding-left: 18px; padding-right: 18px; }
+      .settings-section { padding: 16px; }
+      .setting-row { gap: 14px; }
+      .switch-button { flex-direction: column-reverse; gap: 5px; }
+      .feedback { right: 16px; bottom: 14px; gap: 8px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Local SVG symbols only; there are no network assets or external links. -->
+  <svg class="symbol-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="var(--surface-soft)"/><circle cx="16" cy="17" r="3" fill="var(--surface-soft)"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="m10 5-7 7 7 7M3 12h18"/></symbol>
+      <symbol id="i-undo" viewBox="0 0 24 24"><path d="M4 10h10a6 6 0 0 1 0 12M4 10l5-5M4 10l5 5" transform="translate(0 -2)"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="page-wrap">
+    <section class="teaching" aria-labelledby="teaching-title" data-teaching>
+      <div class="teaching-top">
+        <div>
+          <h2 id="teaching-title">关系精修演示，不是通用模板；数据为示例</h2>
+          <p class="teaching-description">同一数据、状态与功能，只比较排布关系。这是网页中的桌面工具教学样例，不是真实原生 App，也非用户认可成品。两种排布均可使用，精修版不代表普遍更好。</p>
+        </div>
+        <div class="layout-control" role="group" aria-label="比较排布方式">
+          <button type="button" data-layout-choice="standard" aria-pressed="false">常规排布</button>
+          <button type="button" data-layout-choice="refined" aria-pressed="true">关系精修</button>
+        </div>
+      </div>
+      <ol class="observations" aria-label="观察什么">
+        <li><strong>01 / 容器退后，对象优先</strong><span>观察表格外框、侧栏与检查器的重量；分组靠留白，不靠更多卡片。</span></li>
+        <li><strong>02 / 数值与文字分工</strong><span>观察文件名与格式的字号层级、大小的右对齐，以及日期的等宽数字。</span></li>
+        <li><strong>03 / 选中不等于悬停</strong><span>悬停只提供浅表反馈；选中保留强调底与侧线，移开指针仍可辨认。</span></li>
+      </ol>
+      <p class="case-note">参数是这个案例的选择：纸白底、墨色文字、少量绿青强调，不应外推为全局配色。窄窗口会折叠检查器；这仍是网页演示。</p>
+    </section>
+
+    <main class="app-window" id="app" aria-label="Fold 素材工作台" data-app>
+      <aside class="sidebar" aria-label="工作台导航">
+        <div class="brand">
+          <svg class="brand-mark" viewBox="0 0 32 36" fill="none" aria-hidden="true"><path d="M5 3h23L16 15H5V3Z" fill="currentColor"/><path d="M5 19h19L13 30H5V19Z" fill="currentColor" opacity=".6"/></svg>
+          <div><div class="brand-name">Fold</div><div class="brand-caption">素材工作台</div></div>
+        </div>
+        <div class="nav-label">个人空间</div>
+        <nav class="navigation" aria-label="素材页面">
+          <button type="button" class="nav-button" data-page-target="all" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg><span>全部素材</span><span class="count" data-count="all">7</span></button>
+          <button type="button" class="nav-button" data-page-target="favorites"><svg class="icon" aria-hidden="true"><use href="#i-star"/></svg><span>收藏</span><span class="count" data-count="favorites">3</span></button>
+          <button type="button" class="nav-button nav-settings" data-page-target="settings"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg><span>偏好设置</span></button>
+        </nav>
+        <div class="sidebar-foot"><strong><span class="offline-dot"></span>离线演示空间</strong>仅内存状态 · 刷新即恢复<br>所有文件与记录均为虚构</div>
+      </aside>
+
+      <section class="workspace" aria-labelledby="page-title">
+        <header class="topbar">
+          <div class="page-title-wrap">
+            <p class="breadcrumb">个人空间 <span aria-hidden="true">/</span> Fold 演示</p>
+            <div class="title-line"><h1 id="page-title">全部素材</h1><span class="page-count" id="page-count"></span></div>
+          </div>
+          <div class="search-box" id="search-box">
+            <label for="asset-search" class="sr-only">搜索文件名、格式、用途或状态</label>
+            <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+            <input id="asset-search" type="search" placeholder="搜索文件名、格式、用途…" autocomplete="off" spellcheck="false" data-search>
+            <button type="button" class="icon-button search-clear" id="clear-search" aria-label="清空搜索" title="清空搜索" data-action="clear-search" hidden><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
+          </div>
+        </header>
+
+        <div class="asset-workspace" id="asset-workspace" data-inspector="open">
+          <section class="list-pane" aria-label="素材对象列表" id="list-pane">
+            <div class="list-intro"><strong id="list-heading">让正在做的事，留在手边</strong><span class="sort-note">按工作分组 · 修改时间降序</span></div>
+            <div id="asset-results"></div>
+            <div class="list-foot"><span id="list-summary"></span><span>选择文件查看完整信息</span></div>
+          </section>
+          <aside class="inspector" id="inspector" aria-label="对象检查器"></aside>
+        </div>
+
+        <section class="settings-pane" id="settings-pane" aria-label="偏好设置内容" hidden>
+          <p class="settings-intro">让这个工作空间适合此刻的阅读。下列设置会同时作用于全部素材、收藏与偏好设置；切换排布不会重置它们。</p>
+          <section class="settings-section" aria-labelledby="appearance-heading">
+            <h2 id="appearance-heading">外观与阅读</h2>
+            <div class="setting-row">
+              <div><p class="setting-name" id="theme-label">深色外观</p><p class="setting-help" id="theme-help">切换整体表面与文字对比度。对象预览保留纸张原色，方便辨认示例本身。</p></div>
+              <button type="button" class="switch-button" role="switch" aria-checked="false" aria-labelledby="theme-label" aria-describedby="theme-help" data-action="toggle-theme"><span id="theme-value" aria-hidden="true">关闭</span><span class="switch-track" aria-hidden="true"></span></button>
+            </div>
+            <div class="setting-row">
+              <div><p class="setting-name" id="density-label">紧凑密度</p><p class="setting-help" id="density-help">减少列表行高、分组间距和设置项留白。不会隐藏字段或移除功能。</p></div>
+              <button type="button" class="switch-button" role="switch" aria-checked="false" aria-labelledby="density-label" aria-describedby="density-help" data-action="toggle-density"><span id="density-value" aria-hidden="true">关闭</span><span class="switch-track" aria-hidden="true"></span></button>
+            </div>
+          </section>
+          <section class="settings-section" aria-labelledby="demo-heading">
+            <h2 id="demo-heading">关于这个演示</h2>
+            <p class="settings-note">7 条虚构素材，未连接真实文件。没有上传、下载或原生软件能力，也不会发送外部请求。不使用本地存储，关闭或刷新后不保留操作。</p>
+            <p class="settings-note">可在本文件地址后添加 <code>?layout=standard&amp;theme=dark</code> 指定初始外观。layout 接受 standard / refined，theme 接受 light / dark；默认 refined / light。界面切换仅改变内存状态，不改写地址。</p>
+            <div class="settings-facts"><span>当前排布 <strong id="current-layout">关系精修</strong></span><span>记录 <strong>7 条示例</strong></span><span>存储 <strong>仅本次会话内存</strong></span></div>
+          </section>
+        </section>
+      </section>
+    </main>
+    <noscript><p>此教学样例需要启用 JavaScript 才能显示记录和交互；无需网络连接。</p></noscript>
+  </div>
+
+  <div class="feedback" id="feedback" data-feedback hidden>
+    <p class="feedback-message" id="feedback-message"></p>
+    <button type="button" class="button" id="undo-button" data-action="undo" hidden><svg class="icon" aria-hidden="true"><use href="#i-undo"/></svg>撤销</button>
+    <button type="button" class="icon-button" id="dismiss-feedback" data-action="dismiss-feedback" aria-label="关闭操作反馈"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
+  </div>
+  <p class="sr-only" id="live-status" role="status" aria-live="polite" aria-atomic="true"></p>
+
+  <script>
+    'use strict';
+
+    // One canonical record set. Only favorite is mutable; layouts never copy data.
+    const assets = [
+      {
+        id: 'fold-guide', name: '折页品牌排版.fig', format: 'FIG', size: '4.8 MB',
+        bytes: 4800000, purpose: '品牌设计', modified: '2026-05-18T14:32:00',
+        favorite: true, group: 'working', status: '待校对', dimensions: '1440 × 1080 px',
+        description: '为虚构的 Fold 工作室整理标题、正文与注释之间的排版关系。',
+        note: '下一步：核对小字号注释的可读性。预览是一张原创排版练习，不对应真实设计文件。',
+        previewTitle: '留白之间', previewSubtitle: '把内容放在前面。', previewKind: 'type'
+      },
+      {
+        id: 'home-wireframe', name: '首页结构线框.svg', format: 'SVG', size: '248 KB',
+        bytes: 248000, purpose: '交互梳理', modified: '2026-05-18T10:15:00',
+        favorite: false, group: 'working', status: '使用中', dimensions: '1280 × 960 px',
+        description: '虚构资料站的首页结构，用于讨论导航、对象列表与详情的位置。',
+        note: '结构讨论用示意稿。线框不代表最终视觉，也没有可打开的真实源文件。',
+        previewTitle: '内容结构', previewSubtitle: '导航 / 对象 / 详情', previewKind: 'wireframe'
+      },
+      {
+        id: 'exhibit-notes', name: '春日展览说明.pdf', format: 'PDF', size: '1.2 MB',
+        bytes: 1200000, purpose: '印刷说明', modified: '2026-05-17T16:40:00',
+        favorite: true, group: 'working', status: '待校对', dimensions: '210 × 297 mm · 6 页',
+        description: '虚构小型展览的导览说明，包含标题、展品介绍与阅读顺序。',
+        note: '预留印刷前的文字校对。这里展示的是封面构图示例，不是 PDF 实际页面。',
+        previewTitle: '春日片段', previewSubtitle: '一场关于日常的展览。', previewKind: 'type'
+      },
+      {
+        id: 'type-rules', name: '字体使用规范.pdf', format: 'PDF', size: '864 KB',
+        bytes: 864000, purpose: '字体规范', modified: '2026-05-16T09:20:00',
+        favorite: true, group: 'reference', status: '可复用', dimensions: '210 × 297 mm · 12 页',
+        description: '虚构项目的文字层级约定，记录正文、辅助信息与数字的分工。',
+        note: '字号与字重仅为当前案例选择，不能直接替代另一个产品的内容分析。',
+        previewTitle: '文字秩序', previewSubtitle: '先读什么，再读什么。', previewKind: 'type'
+      },
+      {
+        id: 'naming-rules', name: '素材命名约定.md', format: 'MD', size: '8 KB',
+        bytes: 8000, purpose: '协作规范', modified: '2026-05-15T11:05:00',
+        favorite: false, group: 'reference', status: '可复用', dimensions: '纯文本 · 42 行',
+        description: '虚构工作室的文件命名示例，让用途、版本与交付状态容易检索。',
+        note: '示例命名：项目_用途_版本。只展示约定，不会重命名你的任何文件。',
+        previewTitle: '命名约定', previewSubtitle: '让每个名字有迹可循。', previewKind: 'type'
+      },
+      {
+        id: 'neutral-palette', name: '中性色板.ase', format: 'ASE', size: '12 KB',
+        bytes: 12000, purpose: '界面配色', modified: '2026-05-14T15:50:00',
+        favorite: false, group: 'reference', status: '可复用', dimensions: '4 个示例色值',
+        description: '这一案例的纸白、墨色与绿青关系，用于说明表面和强调的分工。',
+        note: '不是通用主题包。色板只服务本案例；其他产品需要独立选择视觉方向。',
+        previewTitle: '表面与墨色', previewSubtitle: '四种角色，不是四种装饰。', previewKind: 'palette'
+      },
+      {
+        id: 'cover-sketch', name: '画册封面草图.png', format: 'PNG', size: '2.6 MB',
+        bytes: 2600000, purpose: '版式探索', modified: '2026-05-12T17:10:00',
+        favorite: false, group: 'reference', status: '已归档', dimensions: '1800 × 2400 px',
+        description: '虚构画册的早期封面方向，保留作为标题比例与留白的参考。',
+        note: '已归档的练习方向，不等同于用户认可或正式交付的成品。',
+        previewTitle: '日常索引', previewSubtitle: '记录那些被忽略的片刻。', previewKind: 'type'
+      }
+    ];
+
+    const groups = [
+      { id: 'working', label: '工作中' },
+      { id: 'reference', label: '参考与规范' }
+    ];
+    const pageNames = { all: '全部素材', favorites: '收藏', settings: '偏好设置' };
+    const layoutNames = { standard: '常规排布', refined: '关系精修' };
+    const query = new URLSearchParams(window.location.search);
+    const narrowWindow = window.matchMedia('(max-width: 920px)');
+    const state = {
+      layout: query.get('layout') === 'standard' ? 'standard' : 'refined',
+      theme: query.get('theme') === 'dark' ? 'dark' : 'light',
+      density: 'comfortable',
+      page: 'all',
+      search: '',
+      selectedId: assets[0].id,
+      inspectorOpen: !narrowWindow.matches,
+      undo: null
+    };
+
+    const root = document.documentElement;
+    const app = document.getElementById('app');
+    const results = document.getElementById('asset-results');
+    const inspector = document.getElementById('inspector');
+    const assetWorkspace = document.getElementById('asset-workspace');
+    const searchInput = document.getElementById('asset-search');
+    const clearSearchButton = document.getElementById('clear-search');
+    const feedback = document.getElementById('feedback');
+    const undoButton = document.getElementById('undo-button');
+    const liveStatus = document.getElementById('live-status');
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[character]);
+    }
+
+    function icon(name) {
+      return `<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+    }
+
+    function findAsset(id) {
+      return assets.find(asset => asset.id === id);
+    }
+
+    function visibleAssets() {
+      const term = state.search.trim().toLocaleLowerCase('zh-CN');
+      return assets.filter(asset => {
+        const inPage = state.page !== 'favorites' || asset.favorite;
+        const searchable = [asset.name, asset.format, asset.purpose, asset.status].join(' ').toLocaleLowerCase('zh-CN');
+        return inPage && (!term || searchable.includes(term));
+      }).sort((a, b) => b.modified.localeCompare(a.modified));
+    }
+
+    // Keep query strings as text, never HTML. The live region announces only actions.
+    function announce(message) {
+      liveStatus.textContent = message;
+    }
+
+    function renderChrome() {
+      root.dataset.layout = state.layout;
+      root.dataset.theme = state.theme;
+      root.dataset.density = state.density;
+      root.dataset.page = state.page;
+      document.querySelectorAll('[data-layout-choice]').forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.layoutChoice === state.layout));
+      });
+      document.querySelectorAll('[data-page-target]').forEach(button => {
+        if (button.dataset.pageTarget === state.page) button.setAttribute('aria-current', 'page');
+        else button.removeAttribute('aria-current');
+      });
+      document.querySelector('[data-count="all"]').textContent = assets.length;
+      document.querySelector('[data-count="favorites"]').textContent = assets.filter(asset => asset.favorite).length;
+      document.getElementById('page-title').textContent = pageNames[state.page];
+      const isSettings = state.page === 'settings';
+      document.getElementById('page-count').textContent = isSettings ? '仅作用于本次会话' : `${visibleAssets().length} 项`;
+      document.getElementById('search-box').hidden = isSettings;
+      assetWorkspace.hidden = isSettings;
+      document.getElementById('settings-pane').hidden = !isSettings;
+      clearSearchButton.hidden = !state.search;
+      document.querySelector('[data-action="toggle-theme"]').setAttribute('aria-checked', String(state.theme === 'dark'));
+      document.querySelector('[data-action="toggle-density"]').setAttribute('aria-checked', String(state.density === 'compact'));
+      document.getElementById('theme-value').textContent = state.theme === 'dark' ? '开启' : '关闭';
+      document.getElementById('density-value').textContent = state.density === 'compact' ? '开启' : '关闭';
+      document.getElementById('current-layout').textContent = layoutNames[state.layout];
+    }
+
+    function rowHTML(asset) {
+      const selected = state.selectedId === asset.id;
+      const date = asset.modified.slice(5, 10).replace('-', '/');
+      const favoriteLabel = `${asset.favorite ? '取消收藏' : '收藏'} ${asset.name}`;
+      return `<li class="asset-row" data-asset-id="${asset.id}" data-selected="${selected}" data-favorite="${asset.favorite}">
+        <button type="button" class="asset-select" data-action="select" data-asset-id="${asset.id}" data-focus-key="select-${asset.id}"
+          aria-label="查看 ${escapeHTML(asset.name)} 的详细信息" aria-pressed="${selected}" aria-controls="inspector">
+          <span class="file-glyph">${icon('file')}</span>
+          <span class="file-copy"><span class="file-name" title="${escapeHTML(asset.name)}">${escapeHTML(asset.name)}</span><span class="file-format">${asset.format}</span></span>
+        </button>
+        <span class="purpose"><span class="sr-only">用途：</span>${asset.purpose}<span class="status" data-status="${asset.status}">${asset.status}</span></span>
+        <time class="modified" datetime="${asset.modified}" title="${asset.modified.replace('T', ' ')}"><span class="sr-only">最近修改：</span>${date}</time>
+        <span class="file-size"><span class="sr-only">大小：</span>${asset.size}</span>
+        <button type="button" class="icon-button favorite-button" data-action="favorite" data-asset-id="${asset.id}" data-focus-key="favorite-${asset.id}"
+          aria-label="${escapeHTML(favoriteLabel)}" title="${escapeHTML(favoriteLabel)}" aria-pressed="${asset.favorite}">${icon('star')}</button>
+      </li>`;
+    }
+
+    function renderList(items) {
+      document.getElementById('list-heading').textContent = state.page === 'favorites' ? '常用素材，放在一起' : '最近整理的素材';
+      const totalBytes = items.reduce((sum, asset) => sum + asset.bytes, 0);
+      const totalSize = totalBytes >= 1000000 ? `${(totalBytes / 1000000).toFixed(2)} MB` : `${Math.round(totalBytes / 1000)} KB`;
+      document.getElementById('list-summary').textContent = `${items.length} 项 · ${totalSize} · 示例数据`;
+      if (!items.length) {
+        const hasSearch = Boolean(state.search.trim());
+        results.innerHTML = `<div class="empty-state" data-empty-state tabindex="-1">
+          ${icon(hasSearch ? 'search' : 'star')}
+          <h2>${hasSearch ? '没有找到匹配的素材' : '这里还没有收藏'}</h2>
+          <p>${hasSearch ? `未找到“${escapeHTML(state.search.trim())}”。试试文件名、格式、用途或状态。` : '在全部素材中点击星标，就能把常用对象放到这里。取消收藏不会删除素材。'}</p>
+          <button type="button" class="button" data-action="${hasSearch ? 'clear-search' : 'show-all'}" data-focus-key="empty-action">${hasSearch ? '清空搜索' : '前往全部素材'}</button>
+        </div>`;
+        return;
+      }
+      results.innerHTML = `<div class="asset-table">
+        <div class="columns" aria-hidden="true"><span>素材</span><span class="purpose-heading">用途 · 状态</span><span class="modified-heading">最近修改</span><span class="size-heading">大小</span><span class="favorite-heading">收藏</span></div>
+        ${groups.map(group => {
+          const members = items.filter(asset => asset.group === group.id);
+          if (!members.length) return '';
+          return `<section class="asset-group" aria-labelledby="group-${group.id}" data-group="${group.id}">
+            <h2 class="group-heading" id="group-${group.id}">${group.label}<span>${members.length}</span></h2>
+            <ul class="asset-list">${members.map(rowHTML).join('')}</ul>
+          </section>`;
+        }).join('')}
+      </div>`;
+    }
+
+    // Original, intentionally schematic preview. It is never presented as a screenshot.
+    function previewHTML(asset) {
+      let composition;
+      if (asset.previewKind === 'wireframe') {
+        composition = `<rect x="25" y="83" width="270" height="116" rx="3" fill="#eef0e9" stroke="#b7c0b3"/>
+          <path d="M81 84v114M26 108h268M94 135h182M94 159h182M94 183h182" stroke="#b7c0b3"/>
+          <rect x="36" y="119" width="34" height="8" rx="2" fill="#739783"/><rect x="36" y="140" width="26" height="5" rx="2" fill="#b7c0b3"/>
+          <rect x="94" y="117" width="79" height="6" rx="2" fill="#87978a"/><rect x="94" y="143" width="103" height="6" rx="2" fill="#b7c0b3"/>
+          <rect x="94" y="167" width="66" height="6" rx="2" fill="#b7c0b3"/>`;
+      } else if (asset.previewKind === 'palette') {
+        composition = `<rect x="25" y="93" width="66" height="90" fill="#e6e9dd" stroke="#b7c0b3"/><rect x="93" y="93" width="66" height="90" fill="#273e31"/>
+          <rect x="161" y="93" width="66" height="90" fill="#739783"/><rect x="229" y="93" width="66" height="90" fill="#c7ddbd"/>
+          <g fill="#465b49" font-size="9"><text x="25" y="201">纸白</text><text x="93" y="201">墨色</text><text x="161" y="201">强调</text><text x="229" y="201">选中</text></g>`;
+      } else {
+        composition = `<path d="M25 96h270" stroke="#b3bfab"/>
+          <text x="25" y="135" fill="#273e31" font-size="30" font-weight="600" letter-spacing="1">${asset.previewTitle}</text>
+          <text x="27" y="158" fill="#465b49" font-size="10">${asset.previewSubtitle}</text>
+          <path d="M26 178h127M26 185h102M26 192h119" stroke="#a1ad99" stroke-width="2"/>
+          <path d="M202 174h68l-34 34h-34Z" fill="#273e31"/><path d="M236 140h34v34h-34Z" fill="#b4cea7"/>`;
+      }
+      return `<figure class="preview" data-preview="${asset.id}">
+        <svg class="sample-art" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-label="${escapeHTML(asset.previewTitle)}，原创排版示意，非产品实拍">
+          <rect width="320" height="240" fill="#e6e9dd"/>
+          <g font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+            <text x="25" y="30" fill="#465b49" font-size="8" letter-spacing="1.6">FOLD / STUDY NOTES</text>
+            <text x="295" y="30" text-anchor="end" fill="#465b49" font-size="8">0${assets.indexOf(asset) + 1}</text>
+            <text x="25" y="65" fill="#273e31" font-size="12" font-weight="500">${asset.previewKind === 'type' ? '版式研究 · 关系与留白' : asset.previewTitle}</text>
+            ${composition}
+            <text x="25" y="224" fill="#465b49" font-size="7" letter-spacing="1">FICTIONAL MATERIAL / ${asset.format}</text>
+          </g>
+        </svg>
+        <figcaption>原创排版示例 · 非产品实拍<br>不是实际文件渲染，所有预览仅供教学。</figcaption>
+      </figure>`;
+    }
+
+    function renderInspector() {
+      const asset = findAsset(state.selectedId);
+      const open = state.inspectorOpen && Boolean(asset);
+      assetWorkspace.dataset.inspector = open ? 'open' : 'closed';
+      inspector.hidden = !open;
+      if (!open) {
+        inspector.innerHTML = '';
+        inspector.removeAttribute('data-asset-id');
+        return;
+      }
+      inspector.dataset.assetId = asset.id;
+      inspector.innerHTML = `<div class="inspector-top">
+        <span>对象检查器</span>
+        <button type="button" class="icon-button inspector-close" data-action="close-inspector" data-focus-key="close-inspector" aria-label="关闭检查器，返回列表">${icon('close')}</button>
+        <button type="button" class="button back-button" data-action="close-inspector" data-focus-key="back-to-list">${icon('back')}返回列表</button>
+      </div>
+      <div class="inspector-body">
+        ${previewHTML(asset)}
+        <h2 class="inspector-title" id="inspector-title" tabindex="-1">${escapeHTML(asset.name)}</h2>
+        <p class="inspector-description">${asset.description}</p>
+        <div class="inspector-actions"><button type="button" class="button button-accent" data-action="favorite" data-asset-id="${asset.id}" data-focus-key="inspector-favorite-${asset.id}" aria-pressed="${asset.favorite}" aria-label="${asset.favorite ? '取消收藏' : '收藏'} ${escapeHTML(asset.name)}">${icon('star')}${asset.favorite ? '已收藏 · 取消收藏' : '加入收藏'}</button></div>
+        <section aria-labelledby="detail-heading">
+          <h3 class="detail-heading" id="detail-heading">文件信息</h3>
+          <dl class="metadata">
+            <div><dt>格式</dt><dd>${asset.format}</dd></div>
+            <div><dt>大小</dt><dd>${asset.size}</dd></div>
+            <div><dt>规格</dt><dd>${asset.dimensions}</dd></div>
+            <div><dt>用途</dt><dd>${asset.purpose}</dd></div>
+            <div><dt>状态</dt><dd>${asset.status}</dd></div>
+            <div><dt>最近修改</dt><dd><time datetime="${asset.modified}">${asset.modified.slice(0, 10)}<br>${asset.modified.slice(11, 16)}</time></dd></div>
+          </dl>
+        </section>
+        <p class="object-note"><strong>素材备注</strong>${asset.note}</p>
+      </div>`;
+    }
+
+    // Keep selection if possible. If filtering excludes it, use the first visible
+    // object, or close an empty inspector. Layout/theme/density never enter here.
+    function reconcileSelection(items) {
+      if (!items.some(asset => asset.id === state.selectedId)) {
+        state.selectedId = items[0]?.id ?? null;
+        if (!items.length) state.inspectorOpen = false;
+      }
+    }
+
+    function restoreFocus(key) {
+      if (!key) return;
+      const target = Array.from(document.querySelectorAll('[data-focus-key]')).find(element => element.dataset.focusKey === key && element.getClientRects().length);
+      if (target) target.focus({ preventScroll: true });
+      else if (state.page !== 'settings') focusList();
+    }
+
+    function renderAssets({ reconcile = false } = {}) {
+      const focusKey = document.activeElement?.dataset.focusKey;
+      const items = visibleAssets();
+      if (reconcile) reconcileSelection(items);
+      renderChrome();
+      renderList(items);
+      renderInspector();
+      restoreFocus(focusKey);
+    }
+
+    function focusList() {
+      const selectedButton = Array.from(results.querySelectorAll('[data-action="select"]')).find(button => button.dataset.assetId === state.selectedId);
+      const target = selectedButton || results.querySelector('button') || results.querySelector('[data-empty-state]');
+      if (target && target.getClientRects().length) target.focus({ preventScroll: true });
+      else document.querySelector(`[data-page-target="${state.page}"]`).focus({ preventScroll: true });
+    }
+
+    function navigate(page) {
+      if (!Object.hasOwn(pageNames, page)) return;
+      state.page = page;
+      // Search survives page changes. Only explicit clear/reset operations clear it.
+      if (page === 'settings') renderChrome();
+      else {
+        if (narrowWindow.matches) state.inspectorOpen = false;
+        renderAssets({ reconcile: true });
+      }
+      announce(`${pageNames[page]}${page === 'settings' ? '' : `，${visibleAssets().length} 项素材`}`);
+    }
+
+    function showFeedback(message, allowUndo = false) {
+      document.getElementById('feedback-message').textContent = message;
+      undoButton.hidden = !allowUndo;
+      feedback.hidden = false;
+      announce(message + (allowUndo ? '。可撤销最近一次收藏操作。' : ''));
+    }
+
+    function toggleFavorite(id) {
+      const asset = findAsset(id);
+      if (!asset) return;
+      state.undo = {
+        id, favorite: asset.favorite,
+        selectedId: state.selectedId,
+        inspectorOpen: state.inspectorOpen,
+        page: state.page,
+        search: state.search
+      };
+      asset.favorite = !asset.favorite;
+      renderAssets({ reconcile: true });
+      showFeedback(`已${asset.favorite ? '收藏' : '取消收藏'}「${asset.name}」`, true);
+    }
+
+    function undoFavorite() {
+      if (!state.undo) return;
+      const previous = state.undo;
+      const asset = findAsset(previous.id);
+      if (!asset) return;
+      asset.favorite = previous.favorite;
+      // Restore the affected inspector only if the user is still in that context.
+      if (state.page === previous.page && state.search === previous.search) {
+        state.selectedId = previous.selectedId;
+        state.inspectorOpen = previous.inspectorOpen;
+      }
+      state.undo = null;
+      renderAssets({ reconcile: true });
+      showFeedback(`已撤销「${asset.name}」的收藏操作`);
+      document.getElementById('dismiss-feedback').focus({ preventScroll: true });
+    }
+
+    function clearSearch() {
+      state.search = '';
+      searchInput.value = '';
+      renderAssets({ reconcile: true });
+      searchInput.focus({ preventScroll: true });
+      announce(`已清空搜索，${visibleAssets().length} 项素材`);
+    }
+
+    function closeInspector() {
+      state.inspectorOpen = false;
+      renderInspector();
+      focusList();
+    }
+
+    document.querySelectorAll('[data-layout-choice]').forEach(button => {
+      button.addEventListener('click', () => {
+        state.layout = button.dataset.layoutChoice;
+        // Only classes/tokens change. No remount, no loss of search or focus.
+        renderChrome();
+        announce(`已切换${layoutNames[state.layout]}，素材与操作状态保留`);
+      });
+    });
+
+    app.addEventListener('click', event => {
+      const button = event.target.closest('button');
+      if (!button) return;
+      if (button.dataset.pageTarget) {
+        navigate(button.dataset.pageTarget);
+        button.focus({ preventScroll: true });
+        return;
+      }
+      switch (button.dataset.action) {
+        case 'select':
+          state.selectedId = button.dataset.assetId;
+          state.inspectorOpen = true;
+          renderAssets();
+          if (narrowWindow.matches) document.getElementById('inspector-title').focus({ preventScroll: true });
+          announce(`已选择 ${findAsset(state.selectedId).name}，检查器已打开`);
+          break;
+        case 'favorite': toggleFavorite(button.dataset.assetId); break;
+        case 'close-inspector': closeInspector(); break;
+        case 'clear-search': clearSearch(); break;
+        case 'show-all':
+          navigate('all');
+          focusList();
+          break;
+        case 'toggle-theme':
+          state.theme = state.theme === 'light' ? 'dark' : 'light';
+          renderChrome();
+          announce(`已切换${state.theme === 'dark' ? '深色' : '浅色'}外观，作用于全部页面`);
+          break;
+        case 'toggle-density':
+          state.density = state.density === 'comfortable' ? 'compact' : 'comfortable';
+          renderChrome();
+          announce(`已切换${state.density === 'compact' ? '紧凑' : '舒适'}密度，作用于全部页面`);
+          break;
+      }
+    });
+
+    let searchAnnouncement;
+    searchInput.addEventListener('input', () => {
+      state.search = searchInput.value;
+      // Make search results visible when the narrow-window inspector was open.
+      if (narrowWindow.matches) state.inspectorOpen = false;
+      renderAssets({ reconcile: true });
+      window.clearTimeout(searchAnnouncement);
+      searchAnnouncement = window.setTimeout(() => {
+        announce(`搜索结果：${visibleAssets().length} 项素材`);
+      }, 250);
+    });
+    searchInput.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && state.search) {
+        event.preventDefault();
+        event.stopPropagation();
+        clearSearch();
+      }
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && state.inspectorOpen && state.page !== 'settings') {
+        event.preventDefault();
+        closeInspector();
+      }
+    });
+    undoButton.addEventListener('click', undoFavorite);
+    document.getElementById('dismiss-feedback').addEventListener('click', () => {
+      feedback.hidden = true;
+      state.undo = null;
+      // Closing feedback does not move the viewport or change the page.
+      if (state.page === 'settings') document.querySelector('[data-page-target="settings"]').focus({ preventScroll: true });
+      else if (state.inspectorOpen && narrowWindow.matches) document.getElementById('inspector-title').focus({ preventScroll: true });
+      else focusList();
+    });
+
+    // A resize may hide the currently focused row or the desktop close button.
+    narrowWindow.addEventListener('change', () => {
+      if (state.page === 'settings' || !state.inspectorOpen) return;
+      const focused = document.activeElement;
+      if (focused === document.body || focused.getClientRects().length) return;
+      if (narrowWindow.matches) document.getElementById('inspector-title').focus({ preventScroll: true });
+      else inspector.querySelector('.inspector-close').focus({ preventScroll: true });
+    });
+
+    renderAssets();
+  </script>
+</body>
+</html>

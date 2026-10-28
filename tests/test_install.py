@@ -21,11 +21,11 @@ class InstallTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         root = Path(self.temp.name).resolve()
         self.repo = root / 'repo'
-        self.target = root / 'skills' / 'ui-design-router'
+        self.target = root / 'skills' / 'ui-taste-skill'
         for path, text in [(self.repo, 'new'), (self.target, 'old')]:
             path.mkdir(parents=True)
             (path / 'SKILL.md').write_text(text)
-            (path / '_meta.json').write_text(json.dumps({'name': 'ui-design-router'}))
+            (path / '_meta.json').write_text(json.dumps({'name': 'ui-taste-skill'}))
         self.output = contextlib.redirect_stdout(io.StringIO())
         self.output.__enter__()
         self.addCleanup(self.output.__exit__, None, None, None)
@@ -53,7 +53,7 @@ class InstallTests(unittest.TestCase):
         self.assertTrue(self.repo.is_dir())
 
     def test_qoder_link_follows_switch(self):
-        qoder = Path(self.temp.name) / 'qoder-ui-design-router'
+        qoder = Path(self.temp.name) / 'qoder-ui-taste-skill'
         qoder.symlink_to(self.target, target_is_directory=True)
         installer.install(self.repo, self.target, apply=True)
         self.assertEqual(qoder.resolve(), self.repo)

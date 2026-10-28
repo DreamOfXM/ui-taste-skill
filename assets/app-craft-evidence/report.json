@@ -1,0 +1,167 @@
+{
+  "scope": "Real Chromium layout, input and screenshots of the HTML teaching demo; not native-app or aesthetic approval",
+  "sourceSha256": "f9a98839d47e509de23cbdf2eebe4ba6508b02c8ec8c3dc102b8572c3275c980",
+  "capturedAt": "2026-10-28T14:02:42.981Z",
+  "status": "passed",
+  "checks": [
+    "Default view has seven example records",
+    "refined-light: no horizontal page overflow",
+    "refined-light: no horizontal work-pane overflow",
+    "Layout switch preserves selected object",
+    "standard-light: no horizontal page overflow",
+    "standard-light: no horizontal work-pane overflow",
+    "Favorites page filters the shared record set",
+    "favorites-light: no horizontal page overflow",
+    "favorites-light: no horizontal work-pane overflow",
+    "Removing a favorite updates page and navigation count",
+    "Undo restores the favorite",
+    "Search empty state escapes input and preserves real markup",
+    "Clear search restores records and input focus",
+    "Selecting another object updates its inspector",
+    "Escape closes inspector and returns focus to the object",
+    "Preferences apply theme and density",
+    "settings-dark: no horizontal page overflow",
+    "settings-dark: no horizontal work-pane overflow",
+    "compact-dark-1120: no horizontal page overflow",
+    "compact-dark-1120: no horizontal work-pane overflow",
+    "narrow-list: no horizontal page overflow",
+    "narrow-list: no horizontal work-pane overflow",
+    "Narrow object view receives focus",
+    "narrow-detail: no horizontal page overflow",
+    "narrow-detail: no horizontal work-pane overflow",
+    "Narrow return preserves the selected object and focus",
+    "Layout changes preserve theme, density and dataset",
+    "standard-narrow: no horizontal page overflow",
+    "standard-narrow: no horizontal work-pane overflow",
+    "No uncaught page errors or external page requests"
+  ],
+  "captures": [
+    {
+      "file": "refined-light.png",
+      "sha256": "53049fbd59c3c2af19f1fac0c7cf2064d56204aa7b110b4d0378726e424e4862",
+      "state": {
+        "viewport": [
+          1440,
+          1080
+        ],
+        "layout": "refined",
+        "theme": "light",
+        "density": "comfortable",
+        "page": "all",
+        "selected": "fold-guide"
+      }
+    },
+    {
+      "file": "standard-light.png",
+      "sha256": "8f965f54c5165c245aa5c3251990be2b788c117865b438452685ca0f0d58e8db",
+      "state": {
+        "viewport": [
+          1440,
+          1080
+        ],
+        "layout": "standard",
+        "theme": "light",
+        "density": "comfortable",
+        "page": "all",
+        "selected": "fold-guide"
+      }
+    },
+    {
+      "file": "favorites-light.png",
+      "sha256": "0b7300aa4abe7fef75c689d22240bfaf1ca40f0e550fca2a4f6e1692651b6b69",
+      "state": {
+        "viewport": [
+          1440,
+          1080
+        ],
+        "layout": "refined",
+        "theme": "light",
+        "density": "comfortable",
+        "page": "favorites",
+        "selected": "fold-guide"
+      }
+    },
+    {
+      "file": "settings-dark.png",
+      "sha256": "6721155c6006661fffde66d7bddb606338a0065f96ad4eb58c6d3e68a5d6ee1d",
+      "state": {
+        "viewport": [
+          1440,
+          1080
+        ],
+        "layout": "refined",
+        "theme": "dark",
+        "density": "compact",
+        "page": "settings",
+        "selected": null
+      }
+    },
+    {
+      "file": "compact-dark-1120.png",
+      "sha256": "582c660b0e9d425ee4b38b757c38d01fca2bc9fc7f0313a408cdeff15d47c009",
+      "state": {
+        "viewport": [
+          1120,
+          900
+        ],
+        "layout": "refined",
+        "theme": "dark",
+        "density": "compact",
+        "page": "all",
+        "selected": "fold-guide"
+      }
+    },
+    {
+      "file": "narrow-list.png",
+      "sha256": "62a89ce7f4ea2c122f313f156fc558d0bee909254485ee31d52787add95e4085",
+      "state": {
+        "viewport": [
+          390,
+          844
+        ],
+        "layout": "refined",
+        "theme": "dark",
+        "density": "compact",
+        "page": "all",
+        "selected": null
+      }
+    },
+    {
+      "file": "narrow-detail.png",
+      "sha256": "9760575d57d247672c48baabd86efd4d39b5321b3ba437201bfe5345723e52c5",
+      "state": {
+        "viewport": [
+          390,
+          844
+        ],
+        "layout": "refined",
+        "theme": "dark",
+        "density": "compact",
+        "page": "all",
+        "selected": "fold-guide"
+      }
+    },
+    {
+      "file": "standard-narrow.png",
+      "sha256": "6711c6aab94b720cc6a2cf1b7e9915d666343b33904a5db75822b06a5c25a03f",
+      "state": {
+        "viewport": [
+          390,
+          844
+        ],
+        "layout": "standard",
+        "theme": "dark",
+        "density": "compact",
+        "page": "all",
+        "selected": null
+      }
+    }
+  ],
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/156.0.8078.49",
+    "revision": "@29eb03535d5f2f4f899b95f22a92413ffde5284e",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "jsVersion": "15.6.75.19"
+  }
+}

@@ -12,8 +12,8 @@ def check_skill(path):
     if not (path / 'SKILL.md').is_file():
         raise ValueError(f'缺少 SKILL.md: {path}')
     meta = json.loads((path / '_meta.json').read_text())
-    if meta.get('name') != 'ui-design-router':
-        raise ValueError(f'不是 ui-design-router: {path}')
+    if meta.get('name') != 'ui-taste-skill':
+        raise ValueError(f'不是 ui-taste-skill: {path}')
 
 
 def backup_root(target):
@@ -105,7 +105,7 @@ def main():
     parser.add_argument('--restore', type=Path, help='从切换时保留的备份恢复')
     args = parser.parse_args()
     repo = Path(__file__).resolve().parents[1]
-    target = Path.home() / '.agents' / 'skills' / 'ui-design-router'
+    target = Path.home() / '.agents' / 'skills' / 'ui-taste-skill'
     try:
         if args.restore:
             restore(repo, target, args.restore, args.apply)

@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>间 / BETWEEN · 让空间，回到内容之间。</title>
+<style>
+:root {
+  --paper: #f5f1e8; --ink: #24231e; --muted: #716c61; --red: #be412c;
+  --line: #cfc8ba; --page-width: 1240px; --hero-size: 68px; --reading-size: 18px;
+  --serif: "Songti SC", "STSong", "SimSun", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --motion: 140ms;
+}
+/* 结构 */
+* { box-sizing: border-box; }
+body { margin: 0; }
+button { font: inherit; cursor: pointer; color: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+a { color: inherit; }
+[hidden] { display: none !important; }
+.icon { width: 18px; height: 18px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.svg-library { position: absolute; width: 0; height: 0; overflow: hidden; }
+.teaching-bar { display: flex; align-items: center; justify-content: center; min-height: 34px; padding: 6px 12px; }
+.page-width { width: calc(100% - 96px); max-width: var(--page-width); margin-inline: auto; }
+.masthead { min-height: 88px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.identity { display: flex; align-items: center; gap: 16px; }
+.wordmark { display: flex; align-items: baseline; gap: 13px; }
+.identity-note { padding-left: 20px; margin: 0 0 0 9px; }
+.top-nav { display: flex; align-items: center; gap: 32px; }
+.nav-button { display: inline-flex; align-items: center; gap: 8px; padding: 12px 0; border: 0; background: transparent; position: relative; }
+.nav-button::after { content: ""; position: absolute; bottom: 5px; left: 0; right: 0; height: 1px; background: transparent; }
+.hero { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 72px; padding: 58px 0 52px; align-items: center; }
+.hero-copy { padding: 5px 0 14px; }
+.issue-label { display: flex; align-items: center; gap: 12px; margin: 0 0 23px; }
+.issue-label::before { content: ""; width: 25px; height: 1px; background: currentColor; }
+.hero h1 { margin: 0 0 27px; }
+.hero h1 span { display: block; }
+.hero-description { margin: 0 0 28px; max-width: 29em; }
+.hero-action { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+.primary-button { display: inline-flex; align-items: center; justify-content: center; gap: 22px; min-height: 46px; padding: 12px 22px; border: 1px solid var(--red); }
+.hero-figure { margin: 0; min-width: 0; }
+.typography-art { display: block; width: 100%; height: auto; }
+.hero-figure figcaption { display: flex; justify-content: space-between; gap: 12px; padding-top: 12px; }
+.catalog { padding: 28px 0 52px; scroll-margin-top: 24px; }
+.catalog-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 32px; }
+.catalog-title { display: flex; align-items: baseline; gap: 16px; }
+.catalog-title h2 { margin: 0; }
+.catalog-description { margin: 9px 0 0; }
+.topic-filters { display: flex; gap: 22px; }
+.topic-button { min-height: 38px; padding: 7px 2px; background: transparent; border: 0; border-bottom: 1px solid transparent; }
+.article-directory { display: grid; grid-template-columns: 1.14fr 1fr 1fr; }
+.article-entry { min-width: 0; display: flex; flex-direction: column; padding: 0 30px; }
+.article-entry:first-child { padding-left: 0; }
+.article-entry:last-child { padding-right: 0; }
+.entry-meta { display: flex; align-items: center; gap: 13px; margin-bottom: 16px; }
+.entry-number { margin-right: auto; }
+.entry-title { margin: 0 0 16px; max-width: 12em; min-height: 2.8em; overflow-wrap: anywhere; }
+.entry-excerpt { margin: 0 0 23px; max-width: 30em; }
+.read-button { display: inline-flex; align-items: center; gap: 24px; align-self: flex-start; padding: 8px 0; margin-top: auto; background: transparent; border: 0; border-bottom: 1px solid var(--ink); }
+.empty-state { padding: 55px 0 70px; max-width: 550px; }
+.empty-state > .icon { width: 32px; height: 32px; margin-bottom: 19px; }
+.empty-state h3 { margin: 0 0 12px; }
+.empty-state p { margin: 0 0 25px; }
+.footer { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 24px 0 32px; }
+.footer p { margin: 0; }
+.footer-brand { display: block; margin-bottom: 5px; }
+.footer-note { text-align: right; max-width: 28em; }
+.article-view { padding: 28px 0 72px; }
+.reader-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-bottom: 28px; }
+.back-button { display: inline-flex; align-items: center; gap: 10px; padding: 9px 0; border: 0; background: transparent; }
+.article-layout { display: grid; grid-template-columns: 220px minmax(0, 648px); gap: 88px; align-items: start; }
+.reading-sidebar { position: sticky; top: 30px; padding-top: 20px; }
+.reading-label { margin: 0 0 19px; }
+.reading-info { display: grid; grid-template-columns: 48px 1fr; gap: 11px 12px; margin: 0 0 25px; }
+.reading-info dd { margin: 0; }
+.reading-toc { display: grid; gap: 12px; margin: 0 0 28px; }
+.reading-toc a { text-decoration: none; overflow-wrap: anywhere; }
+.save-button { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; width: 100%; padding: 10px 12px; border: 1px solid var(--ink); background: transparent; }
+.storage-note { margin: 11px 0 0; }
+.article-main { min-width: 0; max-width: 36em; }
+.article-kicker { margin: 16px 0 19px; }
+.article-title { margin: 0 0 21px; overflow-wrap: anywhere; }
+.article-deck { margin: 0 0 34px; padding-bottom: 28px; }
+.article-body section { margin-bottom: 30px; }
+.article-body h2 { margin: 0 0 14px; scroll-margin-top: 28px; }
+.article-body p { margin: 0 0 18px; }
+.article-end { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-top: 42px; padding-top: 22px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* 字体 */
+body { font-family: var(--sans); color: var(--ink); font-size: 14px; line-height: 1.65; font-variant-numeric: tabular-nums; }
+.teaching-bar { font-size: 11px; letter-spacing: .04em; }
+.wordmark { font-family: var(--serif); font-size: 32px; line-height: 1; }
+.wordmark small { font-family: var(--sans); font-size: 10px; letter-spacing: .18em; }
+.identity-note, .issue-label, .hero-action > span, .hero-figure figcaption, .entry-meta, .footer, .reading-label, .reading-info, .reading-toc, .storage-note, .article-kicker, .reader-toolbar > span { font-size: 12px; }
+.nav-button { font-size: 13px; }
+.issue-label { letter-spacing: .09em; }
+.hero h1 { font-family: var(--serif); font-size: var(--hero-size); font-weight: 500; line-height: 1.25; letter-spacing: -.045em; }
+.hero-description { font-size: 16px; line-height: 1.95; }
+.hero-action > span { letter-spacing: .02em; }
+.hero-figure figcaption { font-size: 11px; }
+.catalog-title h2 { font-family: var(--serif); font-size: 26px; line-height: 1.4; font-weight: 500; }
+.catalog-title > span { font-size: 11px; letter-spacing: .09em; }
+.catalog-description { font-size: 12px; }
+.topic-button { font-size: 13px; }
+.entry-number { font-family: var(--serif); font-size: 25px; line-height: 1; }
+.entry-title { font-family: var(--serif); font-size: 28px; font-weight: 500; line-height: 1.4; letter-spacing: -.025em; }
+.entry-excerpt { font-size: 14px; line-height: 1.9; }
+.read-button { font-size: 13px; }
+.empty-state h3 { font-family: var(--serif); font-weight: 500; font-size: 30px; }
+.empty-state p { line-height: 1.9; }
+.footer-brand { font-size: 12px; letter-spacing: .12em; }
+.reading-label { letter-spacing: .1em; }
+.reading-info { line-height: 1.7; }
+.storage-note { font-size: 11px; line-height: 1.7; }
+.article-main { font-size: var(--reading-size); }
+.article-kicker { letter-spacing: .1em; }
+.article-title { font-family: var(--serif); font-size: 46px; font-weight: 500; line-height: 1.4; letter-spacing: -.03em; }
+.article-deck { font-size: 16px; line-height: 1.9; }
+.article-body { line-height: 2.05; overflow-wrap: anywhere; }
+.article-body h2 { font-family: var(--serif); font-size: 25px; line-height: 1.5; font-weight: 600; }
+.article-end { font-size: 12px; }
+/* 表面 */
+body { background: var(--paper); }
+.teaching-bar { color: #625c52; background: #eae5da; border-bottom: 1px solid #ded7c9; }
+.masthead { border-bottom: 1px solid var(--ink); }
+.identity-note { color: var(--muted); border-left: 1px solid var(--line); }
+.wordmark small, .hero-description, .hero-action > span, .hero-figure figcaption, .catalog-title > span, .catalog-description, .entry-meta, .entry-excerpt, .empty-state p, .footer, .reading-info dt, .storage-note, .reader-toolbar > span, .article-deck, .article-end > span { color: var(--muted); }
+.issue-label, .entry-number, .article-kicker { color: var(--red); }
+.primary-button { background: var(--red); color: #fff; }
+.catalog { border-top: 1px solid var(--ink); }
+.article-entry + .article-entry { border-left: 1px solid var(--line); }
+.topic-button { color: var(--muted); }
+.footer { border-top: 1px solid var(--line); }
+.footer-brand { color: var(--ink); }
+.reading-sidebar { border-top: 2px solid var(--ink); }
+.reading-label { color: var(--red); }
+.article-deck { border-bottom: 1px solid var(--line); }
+.article-end { border-top: 1px solid var(--line); }
+/* 状态 */
+button, a { transition: color var(--motion), background-color var(--motion), border-color var(--motion); }
+button:focus-visible, a:focus-visible, [tabindex="-1"]:focus-visible { outline: 2px solid var(--red); outline-offset: 5px; }
+.nav-button[aria-pressed="true"] { color: var(--red); }
+.nav-button[aria-pressed="true"]::after { background: var(--red); }
+.topic-button[aria-pressed="true"] { color: var(--red); border-bottom-color: var(--red); }
+.save-button[aria-pressed="true"] { color: var(--red); border-color: var(--red); }
+.save-button[aria-pressed="true"] .icon { fill: #be412c18; }
+.article-entry.is-saved .entry-number::after { content: "已收藏"; display: inline-block; vertical-align: middle; margin-left: 12px; font: 11px var(--sans); color: var(--muted); }
+@media (hover: hover) {
+  .primary-button:hover { background: #9e3322; border-color: #9e3322; }
+  .nav-button:hover, .topic-button:hover, .back-button:hover, .read-button:hover, .reading-toc a:hover { color: var(--red); }
+  .read-button:hover { border-color: var(--red); }
+  .save-button:hover { background: #eae3d7; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+/* 窄屏 */
+@media (max-width: 1120px) {
+  :root { --hero-size: 54px; }
+  .page-width { width: calc(100% - 64px); }
+  .hero { gap: 40px; }
+  .identity-note { display: none; }
+  .article-entry { padding-inline: 23px; }
+  .entry-title { font-size: 25px; }
+  .article-layout { grid-template-columns: 185px minmax(0, 648px); gap: 48px; }
+  .hero-action { gap: 13px; }
+  .hero-action > span { max-width: 11em; }
+}
+@media (max-width: 800px) {
+  :root { --hero-size: 44px; }
+  .hero { gap: 28px; }
+  .hero-description { font-size: 14px; }
+  .hero-description br { display: none; }
+  .hero-figure figcaption > :last-child { display: none; }
+  .article-directory { grid-template-columns: 1fr; }
+  .article-entry { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 0 28px; padding: 24px 0; }
+  .article-entry + .article-entry { border-left: 0; border-top: 1px solid var(--line); }
+  .entry-meta { grid-column: 1 / -1; }
+  .entry-title { min-height: 0; }
+  .read-button { grid-column: 2; justify-self: start; }
+  .catalog-header { margin-bottom: 12px; }
+  .article-layout { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .reading-sidebar { position: static; display: grid; grid-template-columns: minmax(0, 1fr) 180px; gap: 10px 24px; }
+  .reading-label, .reading-toc { display: none; }
+  .reading-info { margin: 0; }
+  .storage-note { grid-column: 2; margin: 0; }
+  .article-main { width: 100%; margin-inline: auto; }
+}
+@media (max-width: 580px) {
+  :root { --hero-size: 42px; --reading-size: 17px; }
+  .page-width { width: calc(100% - 40px); }
+  .masthead { min-height: 78px; gap: 15px; }
+  .identity { gap: 0; }
+  .wordmark { display: grid; gap: 7px; font-size: 30px; }
+  .wordmark small { font-size: 8px; letter-spacing: .12em; }
+  .top-nav { gap: 19px; }
+  .nav-button { font-size: 12px; gap: 5px; min-height: 44px; }
+  .nav-button .icon { display: none; }
+  .hero { grid-template-columns: minmax(0, 1fr); gap: 32px; padding: 35px 0 34px; }
+  .hero-copy { padding: 0; }
+  .issue-label { font-size: 11px; margin-bottom: 20px; }
+  .hero h1 { margin-bottom: 20px; line-height: 1.3; }
+  .hero h1 span { overflow-wrap: anywhere; }
+  .hero-description { font-size: 14px; line-height: 1.9; margin-bottom: 24px; max-width: 23em; }
+  .hero-description br { display: initial; }
+  .hero-action { gap: 15px; flex-wrap: nowrap; }
+  .hero-action > span { font-size: 11px; max-width: 12em; }
+  .primary-button { padding-inline: 18px; gap: 15px; flex-shrink: 0; }
+  .hero-figure { max-width: 400px; width: 100%; }
+  .hero-figure figcaption { font-size: 10px; }
+  .hero-figure figcaption > :last-child { display: inline; }
+  .catalog { padding-top: 23px; padding-bottom: 26px; }
+  .catalog-header { display: block; }
+  .catalog-title h2 { font-size: 25px; }
+  .catalog-title { gap: 12px; }
+  .topic-filters { margin-top: 14px; gap: 25px; }
+  .topic-button { min-height: 44px; }
+  .article-entry { display: flex; gap: 0; padding: 26px 0; }
+  .entry-meta { margin-bottom: 15px; }
+  .entry-title { font-size: 29px; max-width: none; margin-bottom: 13px; }
+  .entry-excerpt { margin-bottom: 14px; }
+  .read-button { min-height: 44px; }
+  .footer { display: block; font-size: 11px; padding-top: 22px; }
+  .footer-note { text-align: left; margin-top: 15px !important; max-width: 28em; }
+  .article-view { padding-top: 16px; }
+  .reader-toolbar { gap: 14px; padding-bottom: 17px; }
+  .reader-toolbar > span { font-size: 11px; }
+  .back-button { min-height: 44px; }
+  .reading-sidebar { grid-template-columns: minmax(0, 1fr) 142px; gap: 10px 12px; padding-top: 16px; }
+  .reading-info { font-size: 11px; gap: 6px; grid-template-columns: 30px minmax(0, 1fr); }
+  .save-button { font-size: 12px; padding-inline: 8px; }
+  .storage-note { font-size: 10px; }
+  .article-layout { gap: 22px; }
+  .article-kicker { margin-top: 0; }
+  .article-title { font-size: 36px; line-height: 1.4; }
+  .article-deck { font-size: 14px; padding-bottom: 24px; }
+  .article-body h2 { font-size: 24px; }
+  .article-end { gap: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="teaching-bar">原创教学样例 · 内容为虚构演示</div>
+<svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M20 12H4m6-6-6 6 6 6"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 4h12v17l-6-4-6 4z"/></symbol>
+  </defs>
+</svg>
+<header class="masthead page-width">
+  <div class="identity"><div class="wordmark">间<small>BETWEEN</small></div><p class="identity-note">关于设计，也关于如何观看。</p></div>
+  <nav class="top-nav" aria-label="刊物导航">
+    <button id="show-all" class="nav-button" aria-pressed="true">本期文章</button>
+    <button id="show-saved" class="nav-button" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-bookmark"/></svg>阅读收藏<span id="saved-count">0</span></button>
+  </nav>
+</header>
+<main class="page-width">
+  <div id="index-view">
+    <section id="hero" class="hero" aria-labelledby="issue-title">
+      <div class="hero-copy">
+        <p class="issue-label">本期主题 / 内容与空间</p>
+        <h1 id="issue-title"><span>让空间，</span><span>回到内容之间。</span></h1>
+        <p class="hero-description">不是把页面填满，而是让每一段文字，<br>都找到属于自己的位置。</p>
+        <div class="hero-action"><button class="primary-button" data-open-article="a01">开始阅读<svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button><span>三篇短文，一次关于阅读的练习。</span></div>
+      </div>
+      <figure class="hero-figure">
+        <svg class="typography-art" viewBox="0 0 480 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="art-title art-description">
+          <title id="art-title">密与疏：空间中的排版习作</title>
+          <desc id="art-description">朱红底上排列三块比例不同的暖白与墨黑矩形。左侧文字紧凑，中央留出一段空白，右侧竖排留白二字；三条水平基线连接文字的阅读节奏。</desc>
+          <rect width="480" height="430" fill="#be412c"/>
+          <g fill="#f5f1e8" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="10" letter-spacing="1.5">
+            <text x="34" y="37">BETWEEN / 字与空白</text><text x="446" y="37" text-anchor="end">排版习作</text>
+          </g>
+          <path d="M34 53H446" stroke="#f5f1e8" stroke-opacity=".5"/>
+          <rect x="34" y="76" width="252" height="116" fill="#f5f1e8"/>
+          <rect x="304" y="76" width="142" height="260" fill="#24231e"/>
+          <rect x="34" y="280" width="252" height="56" fill="#f5f1e8"/>
+          <g fill="#24231e" font-family="Songti SC, STSong, serif" font-size="29">
+            <text x="53" y="119">文字需要</text><text x="53" y="164">呼吸的地方</text>
+          </g>
+          <g stroke="#24231e" stroke-width="1" opacity=".45"><path d="M53 128H267M53 173H267M53 319H267"/></g>
+          <text x="34" y="235" fill="#f5f1e8" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="12" letter-spacing="5">在句与句之间</text>
+          <path d="M34 249H286" stroke="#f5f1e8" stroke-width="1" stroke-opacity=".65"/>
+          <g fill="#f5f1e8" font-family="Songti SC, STSong, serif" font-size="65" text-anchor="middle"><text x="375" y="180">留</text><text x="375" y="267">白</text></g>
+          <text x="53" y="309" fill="#24231e" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="13" letter-spacing="4">疏 · 密 · 停顿</text>
+          <path d="M34 365H446" stroke="#f5f1e8" stroke-opacity=".5"/>
+          <g fill="#f5f1e8" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="10" letter-spacing="1"><text x="34" y="393">密处建立关系</text><text x="446" y="393" text-anchor="end">疏处容纳思考</text></g>
+        </svg>
+        <figcaption><span>排版习作 · 图形为原创示意</span><span>内容与空间 / 本期</span></figcaption>
+      </figure>
+    </section>
+    <section id="catalog" class="catalog" aria-labelledby="catalog-heading">
+      <header class="catalog-header">
+        <div><div class="catalog-title"><h2 id="catalog-heading" tabindex="-1">本期文章</h2><span id="catalog-count" role="status" aria-live="polite">三篇关于阅读的观察</span></div><p id="catalog-description" class="catalog-description" hidden></p></div>
+        <div class="topic-filters" role="group" aria-label="按文章主题筛选">
+          <button class="topic-button" data-topic="all" aria-pressed="true">全部</button>
+          <button class="topic-button" data-topic="type" aria-pressed="false">排印</button>
+          <button class="topic-button" data-topic="space" aria-pressed="false">空间</button>
+        </div>
+      </header>
+      <div id="article-directory" class="article-directory"></div>
+      <section id="saved-empty" class="empty-state" hidden aria-labelledby="empty-title">
+        <svg class="icon" aria-hidden="true"><use href="#i-bookmark"/></svg><h3 id="empty-title">给值得重读的文字，留个位置。</h3><p id="empty-description">还没有收藏文章。进入一篇短文，点击「收藏文章」，下次就能从这里继续阅读。</p><button id="browse-articles" class="primary-button">去浏览本期文章<svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+      </section>
+    </section>
+  </div>
+  <section id="article-view" class="article-view" data-article-id="" aria-labelledby="article-title" hidden>
+    <div class="reader-toolbar"><button id="back-to-index" class="back-button"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg><span id="back-label">返回目录</span></button><span id="article-position"></span></div>
+    <div class="article-layout">
+      <aside class="reading-sidebar" aria-label="阅读信息与目录">
+        <p class="reading-label">阅读这篇文章</p>
+        <dl class="reading-info"><dt>主题</dt><dd id="reading-topic"></dd><dt>作者</dt><dd id="reading-author"></dd><dt>时长</dt><dd id="reading-time"></dd></dl>
+        <nav id="reading-toc" class="reading-toc" aria-label="文章小目录"></nav>
+        <button id="toggle-article-save" class="save-button" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-bookmark"/></svg><span id="save-label">收藏文章</span></button>
+        <p id="storage-note" class="storage-note">收藏保存在此浏览器。</p>
+      </aside>
+      <article class="article-main">
+        <p id="article-kicker" class="article-kicker"></p><h1 id="article-title" class="article-title" tabindex="-1"></h1><p id="article-deck" class="article-deck"></p>
+        <div id="article-body" class="article-body"></div>
+        <footer class="article-end"><span>全文完 · 感谢你在这里停留</span><button class="back-button" data-return-index>返回目录<svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button></footer>
+      </article>
+    </div>
+  </section>
+</main>
+<footer class="footer page-width"><p><span class="footer-brand">间 / BETWEEN</span>把注意力，还给值得阅读的内容。</p><p class="footer-note">本期文字与图形均为原创演示内容。<br>慢一点，读完一段，再往下走。</p></footer>
+<div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
+<template id="entry-template">
+  <article class="article-entry">
+    <div class="entry-meta"><span class="entry-number"></span><span class="entry-topic"></span><span class="entry-time"></span></div>
+    <h3 class="entry-title"></h3><p class="entry-excerpt"></p>
+    <button class="read-button" data-open-article="">阅读文章<svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+  </article>
+</template>
+<script>
+'use strict';
+const articles = [
+  {
+    id: 'a01', number: '01', title: '留白不是剩下的空间', topic: 'space', author: '沈禾',
+    excerpt: '从一段文字的边缘开始，重新理解留白：它不负责装饰页面，而是让关系变得可见，让阅读有地方停顿。',
+    sections: [
+      { title: '先有关系，才有距离', paragraphs: [
+        '把一段文字放进页面，最先出现的并不是版式，而是关系。标题在说明什么，正文从哪里开始，旁注又属于哪一句？如果这些问题没有回答，再宽的页边距也只是空着。',
+        '我曾把一页札记的所有间距同时放大。页面看起来轻了，阅读却更费力：原本属于同一件事的标题与说明，被推到了彼此陌生的位置。后来，只收紧这两处距离，层次就回来了。'
+      ] },
+      { title: '把停顿放在转折处', paragraphs: [
+        '留白更像语言里的停顿。同一个观点可以靠近，新的问题值得换一口气。它不必平均分配，也不需要每一屏都留出相同面积。',
+        '下一次调整页面时，不妨先读一遍内容。在需要停顿的地方做个记号，再让空间跟随理解。好的留白不是剩下什么，而是主动为阅读留下什么。'
+      ] }
+    ]
+  },
+  {
+    id: 'a02', number: '02', title: '字与字之间，有一条看不见的路', topic: 'type', author: '林序',
+    excerpt: '字号、行距与行长共同决定视线怎样前进。比起寻找特别的字体，更值得先照顾那些不被注意的小小间隔。',
+    sections: [
+      { title: '让视线顺利换行', paragraphs: [
+        '阅读一段文字时，我们并不逐个辨认所有字。视线会向前跳，也会在行尾寻找下一行的起点。行长过宽，回到左侧就像越过一段没有路标的空地；行距过紧，相邻两行又容易纠缠。',
+        '尝试把同一篇短文排成两种宽度，不改字体，只读出声。读到需要重新定位的地方，往往也是版面需要调整的地方。尺寸的选择可以从身体的感受开始。'
+      ] },
+      { title: '少一点变化，多一点照顾', paragraphs: [
+        '标题不一定需要另一套字体。稍有分量的字重、明确的段前距离，常常已经足够。变化太多，读者就得先学习你的规则，才能进入文字。',
+        '排印的细节不必处处让人看见。它更像一条平整的小路：你能自然地走下去，偶尔停留，却很少需要低头确认下一步落在哪里。'
+      ] }
+    ]
+  },
+  {
+    id: 'a03', number: '03', title: '把视线留给重要的事', topic: 'space', author: '周迟',
+    excerpt: '当页面上每个元素都想被看见，内容反而失去声音。一次关于主次的练习，从决定什么应该安静开始。',
+    sections: [
+      { title: '不是所有内容都要同时说话', paragraphs: [
+        '打开一个页面，标题、标签、边框和按钮常常一起招呼读者。每一个单独看都没有问题，放在一起，却像几个人同时讲述同一件事。我们需要的未必是删除，而是决定谁先说。',
+        '在一份虚构的阅读目录里，我把摘要上的底色去掉，让收藏标记退到标题旁边，再把阅读入口留在固定的位置。没有减少内容，文章本身却终于站到了前面。'
+      ] },
+      { title: '安静也需要被设计', paragraphs: [
+        '次要信息不是不重要。作者、主题和阅读时间帮助人作出选择，只是无需拥有与标题相同的音量。适当的距离和清晰的对齐，比一层层边框更能说明归属。',
+        '完成之后，试着离屏幕远一点。先看见的是什么，接着又是什么？如果视线的顺序与内容的顺序一致，页面就已经开始替读者分担工作。'
+      ] }
+    ]
+  }
+];
+const $ = selector => document.querySelector(selector);
+const topicNames = { type: '排印', space: '空间' };
+const storageKey = 'between-reference-saved-v1';
+let saved = new Set();
+let storageAvailable = true;
+try {
+  const ids = JSON.parse(localStorage.getItem(storageKey) || '[]');
+  if (Array.isArray(ids)) saved = new Set(ids.filter(id => articles.some(article => article.id === id)));
+} catch { storageAvailable = false; }
+const state = { mode: 'all', topic: 'all', article: null, returnScroll: 0, opener: null };
+function minutes(article) {
+  const length = article.sections.reduce((total, section) => total + section.paragraphs.join('').length, 0);
+  return `${Math.max(1, Math.ceil(length / 180))} 分钟`;
+}
+function updateNavigation() {
+  $('#saved-count').textContent = String(saved.size);
+  $('#show-all').setAttribute('aria-pressed', String(state.mode === 'all'));
+  $('#show-saved').setAttribute('aria-pressed', String(state.mode === 'saved'));
+}
+function renderIndex() {
+  updateNavigation();
+  const filtered = articles.filter(article => (state.mode === 'all' || saved.has(article.id)) && (state.topic === 'all' || article.topic === state.topic));
+  $('#hero').hidden = state.mode === 'saved';
+  $('#catalog-heading').textContent = state.mode === 'saved' ? '阅读收藏' : '本期文章';
+  $('#catalog-count').textContent = state.mode === 'all' && state.topic === 'all' ? '三篇关于阅读的观察' : `${filtered.length} 篇文章`;
+  $('#catalog-description').hidden = state.mode !== 'saved';
+  $('#catalog-description').textContent = '不必一次读完。把想再读的文字留在这里。';
+  document.querySelectorAll('[data-topic]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.topic === state.topic)));
+  const fragment = document.createDocumentFragment();
+  for (const article of filtered) {
+    const entry = $('#entry-template').content.firstElementChild.cloneNode(true);
+    entry.classList.toggle('is-saved', saved.has(article.id));
+    entry.querySelector('.entry-number').textContent = article.number;
+    entry.querySelector('.entry-number').setAttribute('aria-label', `本期第 ${article.number} 篇${saved.has(article.id) ? '，已收藏' : ''}`);
+    entry.querySelector('.entry-topic').textContent = topicNames[article.topic];
+    entry.querySelector('.entry-time').textContent = minutes(article);
+    entry.querySelector('.entry-title').textContent = article.title;
+    entry.querySelector('.entry-excerpt').textContent = article.excerpt;
+    const button = entry.querySelector('[data-open-article]');
+    button.dataset.openArticle = article.id;
+    button.setAttribute('aria-label', `阅读文章：${article.title}`);
+    fragment.append(entry);
+  }
+  $('#article-directory').replaceChildren(fragment);
+  $('#saved-empty').hidden = filtered.length > 0;
+  const hasSaved = saved.size > 0;
+  $('#empty-title').textContent = hasSaved ? '这个主题，还没有留下的文章。' : '给值得重读的文字，留个位置。';
+  $('#empty-description').textContent = hasSaved ? '你的收藏在其他主题下。可以先查看全部收藏，再决定从哪一篇继续。' : '还没有收藏文章。进入一篇短文，点击「收藏文章」，下次就能从这里继续阅读。';
+  $('#browse-articles').firstChild.textContent = hasSaved ? '查看全部收藏' : '去浏览本期文章';
+}
+function updateSaveButton() {
+  const isSaved = saved.has(state.article);
+  $('#toggle-article-save').setAttribute('aria-pressed', String(isSaved));
+  $('#save-label').textContent = isSaved ? '已收藏 · 取消' : '收藏文章';
+  $('#storage-note').textContent = storageAvailable ? '收藏保存在此浏览器。' : '存储不可用，仅在当前页面保留。';
+  updateNavigation();
+}
+function openArticle(id, opener) {
+  const article = articles.find(item => item.id === id);
+  if (!article) return;
+  state.returnScroll = window.scrollY;
+  state.opener = opener;
+  state.article = id;
+  $('#article-view').dataset.articleId = id;
+  $('#article-position').textContent = `本期文章 / ${article.number}`;
+  $('#back-label').textContent = state.mode === 'saved' ? '返回收藏' : '返回目录';
+  $('[data-return-index]').firstChild.textContent = state.mode === 'saved' ? '返回收藏' : '返回目录';
+  $('#reading-topic').textContent = topicNames[article.topic];
+  $('#reading-author').textContent = article.author;
+  $('#reading-time').textContent = `约 ${minutes(article)}`;
+  $('#article-kicker').textContent = `${topicNames[article.topic]} / 本期第 ${article.number} 篇`;
+  $('#article-title').textContent = article.title;
+  $('#article-deck').textContent = article.excerpt;
+  const body = document.createDocumentFragment();
+  const toc = document.createDocumentFragment();
+  article.sections.forEach((section, index) => {
+    const block = document.createElement('section');
+    const heading = document.createElement('h2');
+    heading.id = `article-section-${index + 1}`;
+    heading.tabIndex = -1;
+    heading.textContent = section.title;
+    block.append(heading);
+    for (const text of section.paragraphs) {
+      const paragraph = document.createElement('p'); paragraph.textContent = text; block.append(paragraph);
+    }
+    const link = document.createElement('a');
+    link.href = `#${heading.id}`; link.textContent = section.title; toc.append(link); body.append(block);
+  });
+  $('#article-body').replaceChildren(body);
+  $('#reading-toc').replaceChildren(toc);
+  updateSaveButton();
+  $('#index-view').hidden = true;
+  $('#article-view').hidden = false;
+  document.title = `${article.title} · 间 / BETWEEN`;
+  window.scrollTo(0, 0);
+  $('#article-title').focus({ preventScroll: true });
+}
+function returnToIndex() {
+  const previousId = state.article;
+  state.article = null;
+  $('#article-view').hidden = true;
+  $('#article-view').dataset.articleId = '';
+  $('#index-view').hidden = false;
+  renderIndex();
+  document.title = state.mode === 'saved' ? '阅读收藏 · 间 / BETWEEN' : '间 / BETWEEN · 让空间，回到内容之间。';
+  const opener = state.opener?.isConnected && !state.opener.closest('[hidden]') ? state.opener : $(`#article-directory [data-open-article="${previousId}"]`);
+  (opener || $('#catalog-heading')).focus({ preventScroll: true });
+  if (opener) window.scrollTo(0, state.returnScroll);
+  else $('#catalog').scrollIntoView({ block: 'start', behavior: 'instant' });
+}
+function showIndex(mode, scrollToCatalog = true) {
+  state.mode = mode; state.article = null;
+  $('#article-view').hidden = true;
+  $('#article-view').dataset.articleId = '';
+  $('#index-view').hidden = false;
+  renderIndex();
+  document.title = mode === 'saved' ? '阅读收藏 · 间 / BETWEEN' : '间 / BETWEEN · 让空间，回到内容之间。';
+  if (scrollToCatalog) {
+    $('#catalog').scrollIntoView({ block: 'start', behavior: 'instant' });
+    $('#catalog-heading').focus({ preventScroll: true });
+  }
+}
+document.addEventListener('click', event => {
+  const button = event.target.closest('button[data-open-article]');
+  if (button) openArticle(button.dataset.openArticle, button);
+});
+$('#back-to-index').addEventListener('click', returnToIndex);
+$('[data-return-index]').addEventListener('click', returnToIndex);
+$('#show-all').addEventListener('click', () => showIndex('all'));
+$('#show-saved').addEventListener('click', () => showIndex('saved'));
+document.querySelectorAll('[data-topic]').forEach(button => button.addEventListener('click', () => {
+  state.topic = button.dataset.topic; renderIndex();
+}));
+$('#browse-articles').addEventListener('click', () => {
+  state.topic = 'all'; showIndex(saved.size > 0 ? 'saved' : 'all');
+});
+$('#toggle-article-save').addEventListener('click', () => {
+  if (!state.article) return;
+  if (saved.has(state.article)) saved.delete(state.article); else saved.add(state.article);
+  try { localStorage.setItem(storageKey, JSON.stringify([...saved])); storageAvailable = true; } catch { storageAvailable = false; }
+  updateSaveButton();
+  $('#announcement').textContent = `${saved.has(state.article) ? '文章已加入阅读收藏' : '文章已从阅读收藏移除'}${storageAvailable ? '' : '，仅在当前页面保留'}`;
+});
+$('#reading-toc').addEventListener('click', event => {
+  const link = event.target.closest('a');
+  if (!link) return;
+  event.preventDefault();
+  const target = document.getElementById(link.getAttribute('href').slice(1));
+  target.scrollIntoView({ block: 'start', behavior: 'instant' });
+  target.focus({ preventScroll: true });
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && state.article) returnToIndex();
+});
+renderIndex();
+</script>
+</body>
+</html>
