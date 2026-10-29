@@ -67,6 +67,8 @@ class SkillPackageTests(unittest.TestCase):
     def test_version_and_entry_size(self):
         version = re.search(r'^  version: "([^"]+)"$', self.frontmatter, re.M).group(1)
         self.assertEqual(version, self.meta['version'])
+        plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
+        self.assertEqual(version, plugin['version'])
         self.assertRegex(version, r'^\d+\.\d+\.\d+$')
         self.assertLess(len(self.body.splitlines()), 500)
 

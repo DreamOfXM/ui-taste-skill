@@ -12,10 +12,10 @@ Zijian teaching example: the exhibition direction arranges six type specimens th
 
 ## More than a different theme
 
-- **Compare genuinely different directions**: for a new interface or open-ended redesign, explore composition, materials, and content presentation. Choose a direction before implementation begins.
-- **Turn that choice into concrete constraints**: a design card specifies the compositional focus, typography and materials, key states, and narrow-screen transitions to guide the code.
+- **Derive direction from the content**: test real materials before comparing compositions and object presentation. Ask to choose a draft yourself, or authorize the assistant to make the choice and finish.
+- **Turn direction into implementation anchors**: specify key components’ proportions, text shapes, crops, and states, then compare the same content before and after to check whether those relationships survived.
 - **Honor the reference and scope**: preserve a reference image’s composition and typographic relationships. A targeted refinement does not become a full redesign or require another two-direction comparison.
-- **Inspect the running interface**: use it and examine screenshots, checking functionality and visual design separately. A successful build does not establish interface quality.
+- **Test the hardest screen first**: inspect dense content, expanded states, and narrow layouts before extending the design. Independent visual review and source-blinded comparisons keep aesthetic judgment separate from functional checks.
 
 Use it to design, redesign, or review websites, desktop software, mobile apps, and web workbenches.
 
@@ -88,7 +88,9 @@ The following instructions and reference materials are in Chinese:
 - [Complete skill instructions](SKILL.md)
 - [Generation methods](references/generation.md)
 - [Reference adaptation](references/visual-calibration.md)
-- [Review methods](references/review.md)
+- [Typography and Chinese–Latin typesetting](references/typography.md)
+- [Independent visual review](references/review.md)
+- [Browser evidence tool](references/tooling.md#通用网页取证) and [source-blinded comparisons](references/evaluation.md#执行可复查的匿名对照)
 
 <details>
 <summary>Maintainers: run validation</summary>
@@ -99,7 +101,7 @@ Run package checks from the repository root. Requires Python 3.9+ and uses only 
 python3 -B -m unittest discover -s tests -v
 ```
 
-The checks cover installation switching, recovery, metadata, documentation resources, and source hashes for existing screenshots. They do not touch real installation directories or evaluate aesthetics.
+The checks cover installation switching, recovery, metadata, resource links, screenshot hashes, and the source-blinded comparison tool. Browser capture cases also need local Node.js and Chrome / Chromium; unavailable dependencies are reported as skips. Tests use isolated temporary directories, not real installation directories, and do not evaluate aesthetics.
 
 Regenerating browser evidence for the examples requires Node.js 18+ and Chrome / Chromium:
 

@@ -19,6 +19,31 @@
 
 脚本运行前核实实际接口与行为；会下载、安装或执行第三方程序的启动器不能作为读设计文档的必经步骤，须有对应授权。文档中的命令名不自动意味着存在同名 CLI。
 
+## 通用网页取证
+
+[取证脚本](../scripts/capture-ui.cjs)检查实际产物，不只检查本包教学页。需要本机Node与Chrome/Chromium；缺浏览器可设置 `CHROME_BIN`，不自动下载安装。先启动项目本地服务，再运行：
+
+```sh
+node <skill-dir>/scripts/capture-ui.cjs --url http://127.0.0.1:4173/ --source ./index.html --out ./evidence/run-01 --width 1440 --height 960
+```
+
+仅接受本机回环页面入口；使用独立临时浏览器配置，不读取用户登录资料。输出目录的父目录须已存在，输出目录须新建或为空，路径不能经过符号链接；旧截图不会被覆盖。`--source`记录所给文件的SHA-256，不证明服务器实际发送了该文件，也不哈希所有依赖；多文件工程另外记录Git提交与未提交diff。页面仍可能加载外部资源，这不是网络沙箱；不以缺图冒充最终效果。
+
+可用 `--steps ./steps.json` 记录实际输入与多个状态：
+
+```json
+[
+  {"action":"capture","name":"desktop"},
+  {"action":"fill","selector":"#search","text":"不存在的对象"},
+  {"action":"capture","name":"empty"},
+  {"action":"fill","selector":"#search","text":""},
+  {"action":"viewport","width":390,"height":844},
+  {"action":"capture","name":"narrow"}
+]
+```
+
+选择器按当前项目填写，不把例子当通用测试。截图记录视口、源码/图片哈希、浏览器和步骤；控制台错误、横向溢出用于定位问题，不用于自动美感打分。脚本不替你验收业务结果或看图，也不会证明所有键盘、触达、缩放和原生状态都通过。
+
 ## 维护本包
 
 从仓库根目录运行，使用本机已有 Python、Node 与 Chrome/Chromium；缺失依赖时报告未运行，不自动安装：
