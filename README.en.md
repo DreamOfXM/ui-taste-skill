@@ -2,7 +2,7 @@
 
 English · [简体中文](README.md)
 
-Help your AI coding assistant choose a visual direction, then carry it through layout, typography, and interaction.
+Turn a redesign into a checkable process: compare two visual directions, constrain the implementation with a design card, then validate on the densest screen and at narrow widths.
 
 [Install](#install) · [Try a task](#try-a-task) · [Explore the examples](#explore-the-examples)
 
@@ -10,20 +10,20 @@ Help your AI coding assistant choose a visual direction, then carry it through l
 
 Zijian teaching example: the exhibition direction arranges six type specimens through scale and spacing. The [workbench direction](assets/reference-evidence/studio-instrument-desktop.png) uses the same content, tightening the catalog and enlarging the active specimen to shift from browsing to inspection.
 
-## More than a different theme
+## How a redesign runs
 
-- **Derive direction from the content**: test real materials before comparing compositions and object presentation. Ask to choose a draft yourself, or authorize the assistant to make the choice and finish.
-- **Turn direction into implementation anchors**: specify key components’ proportions, text shapes, crops, and states, then compare the same content before and after to check whether those relationships survived.
-- **Honor the reference and scope**: preserve a reference image’s composition and typographic relationships. A targeted refinement does not become a full redesign or require another two-direction comparison.
-- **Test the hardest screen first**: inspect dense content, expanded states, and narrow layouts before extending the design. Independent visual review and source-blinded comparisons keep aesthetic judgment separate from functional checks.
+- **Start from real content, compare two directions**: set the final language, the longest title, and the most complex object first. The difference should be in composition, material, or object presentation, not a new color scheme. Pick a direction yourself, or let the assistant choose and finish.
+- **Turn the direction into a design card**: specify region proportions, target viewport, title line breaks, image crops, and key states. Check the build against it so defaults do not sand those relationships down.
+- **Honor the reference and the scope**: preserve a reference image’s composition and typographic relationships. A targeted refinement does not become a full redesign or force a second direction.
+- **Test the hardest screen first**: validate dense interior pages, expanded states, and narrow windows before extending. Independent visual review and source-blinded comparison keep aesthetic judgment separate from functional checks.
 
-Use it to design, redesign, or review websites, desktop software, mobile apps, and web workbenches.
+Use it for new design, redesign, and review of websites, desktop software, mobile apps, and web workbenches.
 
 ## Install
 
 This is an instruction and reference package for a coding assistant, not a standalone design application. The README is bilingual; **the skill instructions and reference materials are currently in Chinese**.
 
-Before installing, review [SKILL.md](SKILL.md), `references/`, and the bundled scripts for code and external requests they may run. Install the complete package, not just the entry file. If a skill with the same name already exists, check its source and back up local changes before replacing it.
+Before installing, review [SKILL.md](SKILL.md), `references/`, and the bundled scripts for the code they run and the external services they reach. Install the complete package, not just the entry file. If a skill with the same name already exists, check its source and back up local changes before replacing it.
 
 All three clients take the same `skills` CLI command and receive the same complete package. Requires **Node.js 22.20+** and the client already installed. Run in a terminal from any directory:
 
@@ -35,15 +35,15 @@ Choose a client when prompted, or name one with `-a`. `-g` installs at user scop
 
 - **Claude Code** (`-a claude-code`): `~/.claude/skills/`; type `/` in a new session and select `ui-taste-skill`
 - **Codex** (`-a codex`): `~/.agents/skills/`; enter `$ui-taste-skill` in a new session
-- **Qoder Desktop** (`-a qoder`): `~/.qoder/skills/`; type `/` in a new task and select the skill
+- **Qoder Desktop** (`-a qoder`): `~/.qoder/skills/`; type `/` in a new task and select `ui-taste-skill`
 
-Open a new session after installing. If the skill does not appear, confirm the package includes `SKILL.md` and `references/`, check the directory listed above, and restart the client. Without Node.js 22.20+ the command cannot run: download the [release ZIP](https://github.com/DreamOfXM/ui-taste-skill/releases/latest/download/ui-taste-skill.zip) and import it in Qoder Desktop’s Extensions panel, or copy the repository into the directory above.
+Open a new session and confirm the skill appears in the list. If it does not, check that the package includes `SKILL.md` and `references/`, that the directory matches the list above, then restart the client. Without Node.js 22.20+ the command cannot run: on Qoder Desktop, import the [release ZIP](https://github.com/DreamOfXM/ui-taste-skill/releases/latest/download/ui-taste-skill.zip) (release assets may lag behind the latest commits); other clients need Node.js 22.20+ first.
 
-Maintenance: update with `npx skills update ui-taste-skill -g`, remove with `npx skills remove ui-taste-skill -g`; with several clients installed they prompt for a target, or accept `-a`. Other clients supported by the skills CLI (Cursor, Gemini CLI, OpenCode, and others) use the same command; target names are in the [supported clients list](https://github.com/vercel-labs/skills/blob/main/docs/agents.md). Installer support for a client does not establish that this Skill has been validated there.
+Maintenance: update with `npx skills update ui-taste-skill -g`, remove with `npx skills remove ui-taste-skill -g`; with several clients installed the CLI prompts for a target, or pass `-a`. Cursor, Gemini CLI, OpenCode, and other supported clients use the same command; target names are in the [supported clients list](https://github.com/vercel-labs/skills/blob/main/docs/agents.md). Installer support for a client does not mean this skill has been validated there.
 
 ## Try a task
 
-In an existing project, select the skill using your client’s steps above. Provide the page or screenshot you want to change, then enter:
+In an existing project, select the skill, provide the page or screenshot you want to change, then enter:
 
 ```text
 Redesign this page with ui-taste-skill.
@@ -57,19 +57,19 @@ Check functionality, visual design,
 and narrow-screen states separately.
 ```
 
-The first result should be two directions you can compare, rather than an immediate full-page implementation. After you confirm one, the design card should specify layout, typography, key states, and responsive behavior. The final delivery should include findings from running and visually inspecting the interface.
+The first result should be two directions you can compare, not an immediate full-page implementation. After you confirm one, the design card should specify layout, typography, key states, and responsive behavior; the delivery should include findings from actually running and inspecting the page.
 
-For reference-matching, attach the image and name the relationships to preserve. For a targeted refinement, specify the scope. For review only, explicitly add “Do not modify code yet.”
+For reference-matching, attach the image and name the relationships to preserve; for a targeted refinement, state the scope; for review only, add “Do not modify code yet.”
 
 ## Explore the examples
 
-These are offline HTML pages included in the repository. Obtain the complete repository or extract the ZIP. With Python 3 available, run this from the repository root or the extracted skill root:
+The examples are offline HTML pages in the repository, not hosted sites. Obtain the full repository or extract the ZIP; with Python 3 available, run this from the repository root or the extracted skill root:
 
 ```sh
 python3 -m http.server 8788 --bind 127.0.0.1
 ```
 
-While the server is running, open the local links below in your browser. Press `Ctrl+C` in the terminal to stop it. These are not hosted sites; the links will not work without the local server.
+While the server runs, open the local links below in your browser; press `Ctrl+C` in the terminal to stop it. The links do not work without the local server.
 
 - [Zijian direction studio](http://127.0.0.1:8788/assets/variant-board.html): exhibition and workbench compositions using the same specimens, with switching, filtering, and typing.
 - [Index workbench](http://127.0.0.1:8788/assets/reference-workbench.html): list and detail views, search, favorites, and narrow-screen back navigation.
@@ -81,9 +81,9 @@ The first four are teaching pages with fictional content. Project Radar uses a p
 
 ## Boundaries and references
 
-The Skill provides design and validation methods, not a guarantee of consistently excellent output from every model. Repository examples are web pages; native apps still require validation on their target platforms. When the execution environment cannot inspect images, visual and interaction conclusions need further verification.
+The Skill provides design and validation methods. It does not guarantee consistently excellent output from every model, and does not replace product decisions, implementation, or security review. Repository examples are web pages; native apps still need validation on their target platforms. When the environment cannot inspect images, visual and interaction conclusions need further verification.
 
-The following instructions and reference materials are in Chinese:
+Reference materials (in Chinese):
 
 - [Complete skill instructions](SKILL.md)
 - [Generation methods](references/generation.md)
