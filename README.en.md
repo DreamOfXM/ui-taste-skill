@@ -31,57 +31,15 @@ All three clients take the same `skills` CLI command and receive the same comple
 npx skills add DreamOfXM/ui-taste-skill -g
 ```
 
-Choose a client when prompted; to install into one client, add `-a` and its target name, for example `-a codex`. `-g` installs at user scope, available in every project; run from the target project directory and omit `-g` for project scope. If the skill does not appear, confirm the package includes `SKILL.md` and `references/`, that it sits in a directory the client scans, and that you opened a new session.
+Choose a client when prompted, or name one with `-a`. `-g` installs at user scope, available in every project; run from the target project directory and omit `-g` for project scope.
 
-Expand your client:
+- **Claude Code** (`-a claude-code`): `~/.claude/skills/`; type `/` in a new session and select `ui-taste-skill`
+- **Codex** (`-a codex`): `~/.agents/skills/`; enter `$ui-taste-skill` in a new session
+- **Qoder Desktop** (`-a qoder`): `~/.qoder/skills/`; type `/` in a new task and select the skill
 
-<details open>
-<summary><b>Claude Code</b> · <code>claude-code</code></summary>
+Open a new session after installing. If the skill does not appear, confirm the package includes `SKILL.md` and `references/`, check the directory listed above, and restart the client. Without Node.js 22.20+ the command cannot run: download the [release ZIP](https://github.com/DreamOfXM/ui-taste-skill/releases/latest/download/ui-taste-skill.zip) and import it in Qoder Desktop’s Extensions panel, or copy the repository into the directory above.
 
-- **Installed to**: `~/.claude/skills/`
-- **Activate**: type `/` in a new session, select `ui-taste-skill`, then enter the [first task](#try-a-task)
-
-Without Node.js, use the plugin marketplace inside a **Claude Code session**, not an ordinary terminal:
-
-```text
-/plugin marketplace add DreamOfXM/ui-taste-skill
-/plugin install ui-taste-skill@ui-taste-skill
-```
-
-In a new session, ask `What skills are available?` and select the plugin-prefixed entry from the `/` list. Update and remove it from the `/plugin` panel; see the [Claude Code plugin documentation](https://code.claude.com/docs/en/plugins) for host details.
-
-</details>
-
-<details>
-<summary><b>Codex</b> · <code>codex</code></summary>
-
-- **Installed to**: `~/.agents/skills/`
-- **Activate**: start a new session, enter `$ui-taste-skill`, then the [first task](#try-a-task)
-
-</details>
-
-<details>
-<summary><b>Qoder Desktop</b> · <code>qoder</code></summary>
-
-- **Installed to**: `~/.qoder/skills/`
-- **Activate**: type `/` in a new task, select the skill, then enter the [first task](#try-a-task)
-- **Without Node.js**: download the release asset [ui-taste-skill.zip](https://github.com/DreamOfXM/ui-taste-skill/releases/latest/download/ui-taste-skill.zip) and import it via Extensions → Skills → Add Skills → Upload Skill; confirm `ui-taste-skill` appears under Installed
-
-</details>
-
-Update:
-
-```sh
-npx skills update ui-taste-skill -g
-```
-
-Remove:
-
-```sh
-npx skills remove ui-taste-skill -g
-```
-
-With installs in several clients, update and remove prompt for a target, or accept `-a`. Other clients supported by the skills CLI (Cursor, Gemini CLI, OpenCode, and others) use the same command; target names are in the [supported clients list](https://github.com/vercel-labs/skills/blob/main/docs/agents.md). Installer support for a client does not establish that this Skill has been validated there.
+Maintenance: update with `npx skills update ui-taste-skill -g`, remove with `npx skills remove ui-taste-skill -g`; with several clients installed they prompt for a target, or accept `-a`. Other clients supported by the skills CLI (Cursor, Gemini CLI, OpenCode, and others) use the same command; target names are in the [supported clients list](https://github.com/vercel-labs/skills/blob/main/docs/agents.md). Installer support for a client does not establish that this Skill has been validated there.
 
 ## Try a task
 

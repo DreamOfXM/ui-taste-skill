@@ -31,57 +31,15 @@
 npx skills add DreamOfXM/ui-taste-skill -g
 ```
 
-按提示选择客户端；只装一个时加 `-a` 和目标名，例如 `-a codex`。`-g` 是用户级安装，所有项目可用；在目标项目目录去掉 `-g` 则只装到该项目。技能未出现时，先确认包内包含 `SKILL.md` 和 `references/`，安装位置是客户端扫描的目录，并重新开启会话。
+按提示选择客户端，或用 `-a` 指定目标。`-g` 是用户级安装，所有项目可用；在目标项目目录去掉 `-g` 则只装到该项目。
 
-按你的客户端展开：
+- **Claude Code**（`-a claude-code`）：`~/.claude/skills/`；新会话输入 `/` 选择 `ui-taste-skill`
+- **Codex**（`-a codex`）：`~/.agents/skills/`；新会话输入 `$ui-taste-skill`
+- **Qoder Desktop**（`-a qoder`）：`~/.qoder/skills/`；新会话输入 `/` 选择 `ui-taste-skill`
 
-<details open>
-<summary><b>Claude Code</b> · <code>claude-code</code></summary>
+装好后开启新会话；技能未出现时，确认包内包含 `SKILL.md` 和 `references/`、上面列出的安装目录正确，再重启客户端。没有 Node.js 22.20+ 时无法运行该命令，可下载[发布附件 ZIP](https://github.com/DreamOfXM/ui-taste-skill/releases/latest/download/ui-taste-skill.zip) 在 Qoder Desktop 的扩展面板导入，或把仓库复制到上面列出的安装目录。
 
-- **安装位置**：`~/.claude/skills/`
-- **启用**：新会话输入 `/`，从列表选择 `ui-taste-skill`，再接上[首次任务](#试一个任务)
-
-没有 Node.js 时，在 **Claude Code 会话输入框**里改用插件市场，不是在普通终端中运行：
-
-```text
-/plugin marketplace add DreamOfXM/ui-taste-skill
-/plugin install ui-taste-skill@ui-taste-skill
-```
-
-新会话询问 `What skills are available?`，从 `/` 列表选中带插件前缀的条目；更新与卸载在 `/plugin` 面板完成，宿主用法见 [Claude Code 插件文档](https://code.claude.com/docs/en/plugins)。
-
-</details>
-
-<details>
-<summary><b>Codex</b> · <code>codex</code></summary>
-
-- **安装位置**：`~/.agents/skills/`
-- **启用**：开启新会话，输入 `$ui-taste-skill`，再接上[首次任务](#试一个任务)
-
-</details>
-
-<details>
-<summary><b>Qoder Desktop</b> · <code>qoder</code></summary>
-
-- **安装位置**：`~/.qoder/skills/`
-- **启用**：在新任务输入 `/`，从列表选中技能，再接上[首次任务](#试一个任务)
-- **没有 Node.js**：下载发布附件 [ui-taste-skill.zip](https://github.com/DreamOfXM/ui-taste-skill/releases/latest/download/ui-taste-skill.zip)，在 Extensions → Skills → Add Skills → Upload Skill 导入，确认 Installed 中出现 `ui-taste-skill`
-
-</details>
-
-更新：
-
-```sh
-npx skills update ui-taste-skill -g
-```
-
-卸载：
-
-```sh
-npx skills remove ui-taste-skill -g
-```
-
-装到多个客户端时，更新与卸载会按提示选择目标，也可加 `-a` 指定。其他支持 skills CLI 的客户端（Cursor、Gemini CLI、OpenCode 等）走同一条命令，目标名见[支持列表](https://github.com/vercel-labs/skills/blob/main/docs/agents.md)；安装器支持某个客户端，不等于本 Skill 已在该客户端验证。
+维护：更新用 `npx skills update ui-taste-skill -g`，卸载用 `npx skills remove ui-taste-skill -g`；装到多个客户端时会提示选择目标，也可加 `-a`。其他支持 skills CLI 的客户端（Cursor、Gemini CLI、OpenCode 等）走同一条命令，目标名见[支持列表](https://github.com/vercel-labs/skills/blob/main/docs/agents.md)；安装器支持某个客户端，不等于本 Skill 已在该客户端验证。
 
 ## 试一个任务
 
