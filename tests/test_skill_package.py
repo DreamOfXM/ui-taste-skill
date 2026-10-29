@@ -71,7 +71,8 @@ class SkillPackageTests(unittest.TestCase):
         self.assertLess(len(self.body.splitlines()), 500)
 
     def test_execution_document_links_resolve(self):
-        documents = [ROOT / 'SKILL.md', ROOT / 'README.md', *sorted((ROOT / 'references').glob('*.md'))]
+        documents = [ROOT / 'SKILL.md', *sorted(ROOT.glob('README*.md')),
+                     *sorted((ROOT / 'references').glob('*.md'))]
         for document in documents:
             content = re.sub(r'```.*?```', '', document.read_text(), flags=re.S)
             for target in re.findall(r'!?\[[^\]]*\]\(([^\s)]+)\)', content):
