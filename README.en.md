@@ -31,12 +31,15 @@ All three clients take the same `skills` CLI command and receive the same comple
 npx skills add DreamOfXM/ui-taste-skill -g
 ```
 
-Choose a client when prompted; to install into one client, add `-a` and its target name, for example `-a codex`. Expand your client for its install location, how to activate the skill, and the alternative when Node.js is unavailable:
+Choose a client when prompted; to install into one client, add `-a` and its target name, for example `-a codex`. `-g` installs at user scope, available in every project; run from the target project directory and omit `-g` for project scope. If the skill does not appear, confirm the package includes `SKILL.md` and `references/`, that it sits in a directory the client scans, and that you opened a new session.
+
+Expand your client:
 
 <details open>
 <summary><b>Claude Code</b> · <code>claude-code</code></summary>
 
-Installed to `~/.claude/skills/`. In a new session, type `/`, select `ui-taste-skill`, then enter the [first task](#try-a-task).
+- **Installed to**: `~/.claude/skills/`
+- **Activate**: type `/` in a new session, select `ui-taste-skill`, then enter the [first task](#try-a-task)
 
 Without Node.js, use the plugin marketplace inside a **Claude Code session**, not an ordinary terminal:
 
@@ -52,20 +55,19 @@ In a new session, ask `What skills are available?` and select the plugin-prefixe
 <details>
 <summary><b>Codex</b> · <code>codex</code></summary>
 
-Installed to `~/.agents/skills/`. Start a new session, enter `$ui-taste-skill`, then the [first task](#try-a-task).
+- **Installed to**: `~/.agents/skills/`
+- **Activate**: start a new session, enter `$ui-taste-skill`, then the [first task](#try-a-task)
 
 </details>
 
 <details>
 <summary><b>Qoder Desktop</b> · <code>qoder</code></summary>
 
-Installed to `~/.qoder/skills/`. In a new task, type `/`, select the skill, then enter the [first task](#try-a-task).
-
-Without Node.js, download the release asset [ui-taste-skill.zip](https://github.com/DreamOfXM/ui-taste-skill/releases/latest/download/ui-taste-skill.zip) and import it via Extensions → Skills → Add Skills → Upload Skill; confirm `ui-taste-skill` appears under Installed.
+- **Installed to**: `~/.qoder/skills/`
+- **Activate**: type `/` in a new task, select the skill, then enter the [first task](#try-a-task)
+- **Without Node.js**: download the release asset [ui-taste-skill.zip](https://github.com/DreamOfXM/ui-taste-skill/releases/latest/download/ui-taste-skill.zip) and import it via Extensions → Skills → Add Skills → Upload Skill; confirm `ui-taste-skill` appears under Installed
 
 </details>
-
-`-g` installs at user scope, available in every project; run from the target project directory and omit `-g` for project scope. If the skill does not appear, confirm the package includes `SKILL.md` and `references/`, that it sits in a directory the client scans, and that you opened a new session.
 
 Update:
 
