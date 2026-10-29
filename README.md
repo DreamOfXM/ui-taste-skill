@@ -66,13 +66,13 @@ npx skills add DreamOfXM/ui-taste-skill -g
 python3 -m http.server 8788 --bind 127.0.0.1
 ```
 
-服务运行时在浏览器打开下列本地链接，结束后在终端按 `Ctrl+C` 停止；本地服务未运行时链接无法访问。
+服务运行时在浏览器打开 `http://127.0.0.1:8788/`，进入下列路径（相对仓库根目录）；结束后在终端按 `Ctrl+C` 停止，服务停止后这些页面就打不开。
 
-- [字间方向工作室](http://127.0.0.1:8788/assets/variant-board.html)：同一组标本的展陈与工作面构图，可切换、筛选与试写。
-- [索引工作台](http://127.0.0.1:8788/assets/reference-workbench.html)：列表与详情、搜索、收藏及窄屏返回。
-- [间阅读刊物](http://127.0.0.1:8788/assets/reference-editorial.html)：中文排印、阅读节奏、文章与主题筛选。
-- [软件关系精修实验室](http://127.0.0.1:8788/assets/app-craft-lab.html)：比较同内容的排布，检查列表、详情与偏好。
-- [项目雷达](http://127.0.0.1:8788/examples/project-radar/index.html)：真实项目的改版原型，让项目用途先于统计信息被看见。
+- `assets/variant-board.html`：同一组标本的展陈与工作面构图，可切换、筛选与试写。
+- `assets/reference-workbench.html`：列表与详情、搜索、收藏及窄屏返回。
+- `assets/reference-editorial.html`：中文排印、阅读节奏、文章与主题筛选。
+- `assets/app-craft-lab.html`：比较同内容的排布，检查列表、详情与偏好。
+- `examples/project-radar/index.html`：真实项目的改版原型，让项目用途先于统计信息被看见。
 
 前四个是内容虚构的教学页面。项目雷达使用 2026-10-19 的公开数据快照，只覆盖浏览、筛选与详情，不是线上产品。页面使用本地字体，外观可能随系统变化。设计关系见[视觉拆解](references/visual-examples.md)。
 

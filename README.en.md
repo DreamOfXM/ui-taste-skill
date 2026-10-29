@@ -69,13 +69,13 @@ The examples are offline HTML pages in the repository, not hosted sites. Obtain 
 python3 -m http.server 8788 --bind 127.0.0.1
 ```
 
-While the server runs, open the local links below in your browser; press `Ctrl+C` in the terminal to stop it. The links do not work without the local server.
+While the server runs, open `http://127.0.0.1:8788/` in your browser and go to the paths below (relative to the repository root); press `Ctrl+C` to stop it, and the pages stop working once the server is down.
 
-- [Zijian direction studio](http://127.0.0.1:8788/assets/variant-board.html): exhibition and workbench compositions using the same specimens, with switching, filtering, and typing.
-- [Index workbench](http://127.0.0.1:8788/assets/reference-workbench.html): list and detail views, search, favorites, and narrow-screen back navigation.
-- [Jian reading journal](http://127.0.0.1:8788/assets/reference-editorial.html): Chinese typography, reading rhythm, and article and topic filters.
-- [App relationship refinement lab](http://127.0.0.1:8788/assets/app-craft-lab.html): compare arrangements of the same content and inspect lists, details, and preferences.
-- [Project Radar](http://127.0.0.1:8788/examples/project-radar/index.html): a redesign prototype for a real project, bringing project purpose ahead of statistics.
+- `assets/variant-board.html`: exhibition and workbench compositions using the same specimens, with switching, filtering, and typing.
+- `assets/reference-workbench.html`: list and detail views, search, favorites, and narrow-screen back navigation.
+- `assets/reference-editorial.html`: Chinese typography, reading rhythm, and article and topic filters.
+- `assets/app-craft-lab.html`: compare arrangements of the same content and inspect lists, details, and preferences.
+- `examples/project-radar/index.html`: a redesign prototype for a real project, bringing project purpose ahead of statistics.
 
 The first four are teaching pages with fictional content. Project Radar uses a public data snapshot from 2026-10-19 and covers only browsing, filtering, and details; it is not a live product. The pages use local fonts, whose appearance may vary by system. See the [visual breakdowns](references/visual-examples.md) for the design relationships.
 
