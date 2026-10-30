@@ -16,7 +16,8 @@ An initial viewport PNG is always captured before steps. Capture names must be u
 Selectors: type, *, #id, .class, [attribute], [attribute="value"], attribute operators,
            descendant / > / + / ~ combinators and comma groups (no escapes or pseudo-classes).
 Keys: Tab, Enter, Escape, Backspace, Delete, arrows, Home, End, PageUp, PageDown, Space,
-      or one printable character. Dimensions: integers 1..8192; maximum 200 steps.
+      or one printable character. Optional key-only shift:boolean; true requires Tab (Shift+Tab).
+Dimensions: integers 1..8192; maximum 200 steps.
 Output parent must exist; symlinks in the output path are refused. Never overwrites files.
 Only loopback HTTP(S) documents are allowed; subresources are not a network sandbox.
 The source hash identifies the supplied HTML, not proof that the server served that file.
@@ -107,11 +108,16 @@ function parseArgs(args) {
   for (const [index, step] of steps.entries()) {
     if (!step || typeof step !== 'object' || Array.isArray(step) || !Object.hasOwn(fields, step.action)) throw new Error('Invalid action at step ' + (index + 1));
     const required = ['action', ...fields[step.action]];
-    if (Object.keys(step).length !== required.length || !required.every(key => Object.hasOwn(step, key))) throw new Error('Invalid fields at step ' + (index + 1));
+    const allowed = step.action === 'key' ? [...required, 'shift'] : required;
+    if (Object.keys(step).some(key => !allowed.includes(key)) || !required.every(key => Object.hasOwn(step, key))) throw new Error('Invalid fields at step ' + (index + 1));
     if (Object.hasOwn(step, 'selector')) selector(step.selector);
     if (step.action === 'fill' && (typeof step.text !== 'string' || step.text.length > 100000 || step.text.includes('\0'))) throw new Error('Invalid fill text');
     if (step.action === 'key' && (typeof step.key !== 'string' || !(Object.hasOwn(namedKeys, step.key) ||
         (Array.from(step.key).length === 1 && !/[\p{C}\p{Zl}\p{Zp}]/u.test(step.key))))) throw new Error('Invalid key');
+    if (Object.hasOwn(step, 'shift')) {
+      if (typeof step.shift !== 'boolean') throw new Error('shift must be boolean');
+      if (step.shift && step.key !== 'Tab') throw new Error('shift:true is supported only for Tab');
+    }
     if (step.action === 'viewport') { dimension(step.width); dimension(step.height); }
     if (step.action === 'media' && typeof step.reducedMotion !== 'boolean') throw new Error('reducedMotion must be boolean');
     if (step.action === 'capture') {
@@ -226,7 +232,7 @@ async function captureUI(options) {
     fs.writeFileSync(path.join(options.out, file), bytes, { flag: 'wx' });
   }
   const report = { status: 'failed', timestamp: stamp(), url: options.url,
-    scope: 'Viewport evidence and measured overflow only; no aesthetic assessment or served-source identity check.',
+    scope: 'Viewport evidence, measured overflow and read-only focus snapshots sampled just before screenshots; non-atomic, not continuous. No focus correctness, accessibility or aesthetic assessment or served-source identity check. Passed means capture checks only.',
     source: { path: options.source, sha256: sha256(options.sourceBytes), bytes: options.sourceBytes.length },
     viewport: { width: options.width, height: options.height, deviceScaleFactor: 1 },
     browserVersion: null, steps: options.steps, captures: [], errors: [] };
@@ -323,9 +329,19 @@ async function captureUI(options) {
     }
     async function capture(name) {
       await ready();
-      const measured = await evaluate(`({width:innerWidth,height:innerHeight,scrollX,scrollY,url:location.href,
-        clientWidth:document.documentElement.clientWidth,
-        scrollWidth:Math.max(document.documentElement.scrollWidth,document.body?.scrollWidth || 0)})`);
+      // Read-only, top-document snapshot adjacent to (but not atomic with) the screenshot.
+      const measured = await evaluate(`(() => {
+        const el = document.activeElement, r = el?.getBoundingClientRect();
+        const focus = { tag: el?.tagName ?? null, id: el?.id ?? null, role: el?.getAttribute('role') ?? null,
+          tabIndex: el?.tabIndex ?? null, connected: el?.isConnected ?? false,
+          disabled: el?.matches(':disabled') ?? false,
+          inViewport: !!r && r.width > 0 && r.height > 0 && r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth,
+          rect: r ? { x:r.x, y:r.y, width:r.width, height:r.height, top:r.top, right:r.right, bottom:r.bottom, left:r.left } : null,
+          dialogId: el?.closest('dialog[open]')?.id ?? null, documentHasFocus: document.hasFocus() };
+        return {width:innerWidth,height:innerHeight,scrollX,scrollY,url:location.href,focus,
+          clientWidth:document.documentElement.clientWidth,
+          scrollWidth:Math.max(document.documentElement.scrollWidth,document.body?.scrollWidth || 0)};
+      })()`);
       loopbackUrl(measured.url);
       if (measured.width !== viewport.width || measured.height !== viewport.height) throw new Error('Browser viewport differs from requested dimensions');
       const overflow = { scrollWidth: measured.scrollWidth, viewportWidth: measured.width, clientWidth: measured.clientWidth,
@@ -337,7 +353,8 @@ async function captureUI(options) {
       const file = name + '.png';
       write(file, bytes);
       report.captures.push({ name, file, sha256: sha256(bytes), viewport: { ...viewport }, step,
-        timestamp: stamp(), url: measured.url, scroll: { x: measured.scrollX, y: measured.scrollY }, reducedMotion, overflow });
+        timestamp: stamp(), url: measured.url, scroll: { x: measured.scrollX, y: measured.scrollY }, reducedMotion, overflow,
+        focus: measured.focus });
       if (overflow.pixels > 0) error('overflow', `${name}: horizontal page overflow ${overflow.pixels}px`);
     }
     report.browserVersion = await cdp.call('Browser.getVersion');
@@ -369,7 +386,7 @@ async function captureUI(options) {
           await key('Backspace');
           if (instruction.text) await call('Input.insertText', { text: instruction.text });
           break;
-        case 'key': await key(instruction.key); break;
+        case 'key': await key(instruction.key, instruction.shift ? 8 : 0); break;
         case 'viewport': await resize(instruction.width, instruction.height); break;
         case 'media':
           reducedMotion = instruction.reducedMotion;

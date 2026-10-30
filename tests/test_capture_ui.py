@@ -61,7 +61,8 @@ document.querySelector('#open').addEventListener('click', event => {
   document.querySelector('form').hidden = false; document.body.className = 'open'; observe('click', event);
 });
 field.addEventListener('input', event => observe('input', event));
-document.addEventListener('keydown', event => observe('key', event, {key: event.key}));
+document.addEventListener('keydown', event => observe('key', event, {key: event.key, shiftKey: event.shiftKey}));
+document.addEventListener('keyup', event => observe('keyup', event, {key: event.key, shiftKey: event.shiftKey}));
 document.querySelector('form').addEventListener('submit', event => {
   event.preventDefault(); document.body.className = 'submitted';
   document.querySelector('#result').textContent = field.value; dialog.showModal(); observe('submit', event);
@@ -71,6 +72,9 @@ document.querySelector('#close').addEventListener('click', () => dialog.close())
 window.addEventListener('resize', event => observe('resize', event));
 matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', event => observe('media', event));
 const mode = new URL(location.href).searchParams.get('mode');
+if (mode === 'blur-on-escape') document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') setTimeout(() => field.blur(), 0);
+});
 if (mode === 'errors' || mode === 'overflow') {
   const wide = document.createElement('div'); wide.style.cssText = 'width:2200px;height:20px'; document.body.append(wide);
 }
@@ -174,6 +178,33 @@ class CaptureArguments(CaptureBase):
         self.invalid(self.args(steps=target), "valid JSON")
         self.invalid(self.args(steps=self.root), "JSON file")
 
+    def test_key_shift_rejects_non_boolean_before_launch(self):
+        for shift in (None, 0, 1, "true", "false", [], {}):
+            with self.subTest(shift=shift):
+                self.invalid(self.args(steps=self.steps([
+                    {"action": "key", "key": "Tab", "shift": shift}])), "shift must be boolean")
+        for step in ({"action": "key", "shift": True},
+                     {"action": "key", "key": "Tab", "shift": True, "code": "alert(1)"}):
+            self.invalid(self.args(steps=self.steps([step])), "fields")
+
+    def test_shift_rejected_on_other_actions_before_launch(self):
+        actions = [{"action": "click", "selector": "button"},
+                   {"action": "fill", "selector": "input", "text": "x"},
+                   {"action": "viewport", "width": 390, "height": 844},
+                   {"action": "media", "reducedMotion": True},
+                   {"action": "capture", "name": "frame"}]
+        for action in actions:
+            for shift in (True, False):
+                with self.subTest(action=action["action"], shift=shift):
+                    self.invalid(self.args(steps=self.steps([dict(action, shift=shift)])), "fields")
+
+    def test_unsupported_shift_combinations_rejected_before_launch(self):
+        for key in ("Enter", "Escape", "Backspace", "Delete", "ArrowLeft", "ArrowUp", "ArrowRight",
+                    "ArrowDown", "Home", "End", "PageUp", "PageDown", "Space", "a", "A", "1", "!", "中", " "):
+            with self.subTest(key=key):
+                self.invalid(self.args(steps=self.steps([
+                    {"action": "key", "key": key, "shift": True}])), "supported only for Tab")
+
     def test_selectors_and_capture_names(self):
         for css in ("", "[", "#", "button >", "input,,button", "input;alert(1)", "#x\n", "[x='bad]", ":has(*)", "a" * 1025):
             with self.subTest(selector=css):
@@ -215,7 +246,10 @@ class CaptureArguments(CaptureBase):
         result = self.run_cli(self.args(url="https://[::1]:4443/", steps=self.steps([
             {"action": "click", "selector": "main > form input[data-field=\"message\"], #other"},
             {"action": "fill", "selector": "input", "text": "中文 ' \\\""},
-            {"action": "key", "key": "Escape"}, {"action": "media", "reducedMotion": False}])))
+            {"action": "key", "key": "Escape"}, {"action": "media", "reducedMotion": False},
+            {"action": "key", "key": "Escape", "shift": False},
+            {"action": "key", "key": "a", "shift": False},
+            {"action": "key", "key": "Tab", "shift": True}])))
         self.assertNotEqual(result.returncode, 0)
         report = json.loads((self.out / "report.json").read_text())
         self.assertEqual(report["status"], "failed")
@@ -315,6 +349,81 @@ class CaptureBrowser(CaptureBase):
             self.assertEqual(struct.unpack(">II", data[16:24]), (frame["viewport"]["width"], frame["viewport"]["height"]))
             self.assertIn("step", frame)
             self.assertIn("T", frame["timestamp"])
+            focus = frame["focus"]
+            self.assertEqual(set(focus), {"tag", "id", "role", "tabIndex", "connected", "disabled",
+                                          "inViewport", "rect", "dialogId", "documentHasFocus"})
+            for flag in ("connected", "disabled", "inViewport", "documentHasFocus"):
+                self.assertIsInstance(focus[flag], bool)
+            if focus["rect"] is not None:
+                self.assertEqual(set(focus["rect"]), {"x", "y", "width", "height", "top", "right", "bottom", "left"})
+                self.assertTrue(all(isinstance(value, (int, float)) for value in focus["rect"].values()))
+
+    def test_real_tab_and_shift_tab_report_focus_and_trusted_keys(self):
+        private_value = "fixture-private-value"
+        self.source.write_text(FIXTURE.replace('value="old text"', 'value="' + private_value + '"')
+                               .replace('id="entry"', 'id="entry" role="searchbox"')
+                               .replace('<dialog>', '<dialog id="editor-dialog">'), encoding="utf-8")
+        result, report = self.capture([
+            {"action": "click", "selector": "#open"},
+            {"action": "key", "key": "Tab"},
+            {"action": "capture", "name": "forward"},
+            {"action": "key", "key": "Tab", "shift": True},
+            {"action": "capture", "name": "backward"},
+            {"action": "key", "key": "Tab", "shift": False},
+            {"action": "capture", "name": "forward-again"},
+            {"action": "key", "key": "Enter"},
+            {"action": "capture", "name": "dialog"},
+            {"action": "key", "key": "Escape"},
+            {"action": "capture", "name": "closed"},
+        ])
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr + str(report["errors"]))
+        self.verify_hashes(report)
+        self.assertNotIn(private_value, json.dumps(report))
+        snapshots = [frame["focus"] for frame in report["captures"]]
+        self.assertEqual([(f["tag"], f["id"], f["dialogId"]) for f in snapshots], [
+            ("BODY", "", None), ("INPUT", "entry", None), ("BUTTON", "open", None),
+            ("INPUT", "entry", None), ("BUTTON", "close", "editor-dialog"), ("INPUT", "entry", None)])
+        self.assertEqual(snapshots[1]["role"], "searchbox")
+        self.assertIsNone(snapshots[2]["role"])
+        for focus in snapshots[1:]:
+            self.assertEqual(focus["tabIndex"], 0)
+            self.assertTrue(focus["connected"])
+            self.assertFalse(focus["disabled"])
+            self.assertTrue(focus["inViewport"])
+            self.assertTrue(focus["documentHasFocus"])
+            self.assertGreater(focus["rect"]["width"], 0)
+            self.assertGreater(focus["rect"]["height"], 0)
+        with self.condition:
+            self.assertTrue(self.condition.wait_for(
+                lambda: sum(e.get("key") == "Tab" for e in self.events) == 6, timeout=3))
+        for kind, active in (("key", ["open", "entry", "open"]), ("keyup", ["entry", "open", "entry"])):
+            events = [e for e in self.events if e["kind"] == kind and e["key"] == "Tab"]
+            self.assertEqual([e["shiftKey"] for e in events], [False, True, False])
+            self.assertEqual([e["active"] for e in events], active)
+            self.assertTrue(all(e["trusted"] for e in events))
+
+    def test_real_focus_loss_to_body_is_evidence_not_a_focus_verdict(self):
+        result, report = self.capture([
+            {"action": "click", "selector": "#open"},
+            {"action": "key", "key": "Tab"},
+            {"action": "capture", "name": "focused"},
+            {"action": "key", "key": "Escape"},
+            {"action": "capture", "name": "lost"},
+        ], query="?mode=blur-on-escape")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.verify_hashes(report)
+        focused, lost = [frame["focus"] for frame in report["captures"][1:]]
+        self.assertEqual((focused["tag"], focused["id"]), ("INPUT", "entry"))
+        self.assertEqual((lost["tag"], lost["id"], lost["tabIndex"]), ("BODY", "", -1))
+        self.assertTrue(lost["connected"])
+        self.assertTrue(lost["documentHasFocus"])
+        self.assertIsNone(lost["dialogId"])
+        self.assertEqual(report["status"], "passed")  # Capture success is not focus correctness.
+        self.assertEqual(report["errors"], [])
+        self.assertIn("non-atomic, not continuous", report["scope"])
+        self.assertIn("No focus correctness", report["scope"])
+        self.assertTrue(any(e["kind"] == "key" and e["key"] == "Escape" and e["trusted"]
+                            and not e["shiftKey"] for e in self.events))
 
     def test_real_input_viewports_media_and_capture_hashes(self):
         text = "真实 UI — café ' \\ \" ; window.bad = 1;"

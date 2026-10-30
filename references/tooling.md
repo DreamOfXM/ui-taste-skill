@@ -37,12 +37,18 @@ node <skill-dir>/scripts/capture-ui.cjs --url http://127.0.0.1:4173/ --source ./
   {"action":"fill","selector":"#search","text":"不存在的对象"},
   {"action":"capture","name":"empty"},
   {"action":"fill","selector":"#search","text":""},
+  {"action":"key","key":"Tab","shift":true},
+  {"action":"capture","name":"reverse-tab"},
   {"action":"viewport","width":390,"height":844},
   {"action":"capture","name":"narrow"}
 ]
 ```
 
-选择器按当前项目填写，不把例子当通用测试。截图记录视口、源码/图片哈希、浏览器和步骤；控制台错误、横向溢出用于定位问题，不用于自动美感打分。脚本不替你验收业务结果或看图，也不会证明所有键盘、触达、缩放和原生状态都通过。
+仅 `key` 步骤可选 `shift` 布尔值；`true` 只支持 `Tab`，通过 CDP `modifiers=8` 发送真实 Shift+Tab。省略或 `false` 保持原按键行为，其他组合在启动浏览器前拒绝。
+
+选择器按当前项目填写，不把例子当通用测试。每张截图（含 initial）的 report 条目记录视口、源码/图片哈希、浏览器、步骤及只读 `focus`：`tag`（如 BODY）、`id`、`role`（原始属性，非计算角色）、`tabIndex`、`connected`、`disabled`（原生 `:disabled`）、`inViewport`、`rect`、`dialogId`、`documentHasFocus`。`rect` 为视口 CSS 像素的 x/y/width/height/top/right/bottom/left；`inViewport` 仅判断正面积矩形与视口相交，不代表未遮挡或可交互。`dialogId` 是焦点元素自身或最近祖先 open dialog 的 id，无匹配为 null、无 id 为空字符串。
+
+焦点取自顶层 `document.activeElement`，不深入 iframe/Shadow DOM；不读取 input.value、表单内容或文本。已有步骤仍原样记录（含 fill.text），截图也可能显示敏感内容，请勿用于真实秘密。焦点在截图前相邻采样，两者非原子，不保证采样间或持续焦点正确。脚本不增加任意 JS 执行入口、自动焦点 trap 或 a11y 评分；`passed` 只指现有取证检查未报错，不代表焦点验收通过。控制台错误、横向溢出用于定位问题，不用于自动美感打分；脚本不替你验收业务结果或看图，也不会证明所有键盘、触达、缩放和原生状态都通过。
 
 ## 维护本包
 
