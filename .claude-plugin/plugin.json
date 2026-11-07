@@ -1,7 +1,7 @@
 {
   "name": "ui-taste-skill",
-  "description": "给 AI 编程助手用的 UI 设计 Skill：先比较视觉方向，再把方向写成约束，最后在真实界面上验收。",
-  "version": "3.3.1",
+  "description": "给 AI 编程助手用的 UI 设计 Skill：从需求与状态推导视觉层级和元素，比较整体关系，并在真实界面上验收。",
+  "version": "3.5.0",
   "skills": [
     "./"
   ]
