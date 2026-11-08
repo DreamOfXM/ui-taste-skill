@@ -66,4 +66,6 @@ node scripts/verify-references.cjs
 
 后两项会启动临时本地服务、使用独立临时浏览器配置、操作教学样例并更新各自的截图与 JSON 证据；不会访问用户浏览器配置或外部站点。改示例后先重新取证再跑包测试。
 
+新增教材的读取与取证：lesson 文档只链接既有截图与实现，不复制图片成第二份权威版本；[移动服务例](../examples/mobile-service/index.html)的证据在 `examples/mobile-service/evidence/report.json`，绑定源码与截图哈希、视口和流程断言。本机无 Node 时可用 headless Chrome 把页面放进固定视口尺寸的 iframe 截真 CSS 像素帧（直接 `--window-size` 可能在 headless 下产生误导性裁切），交互流程另用可控浏览器断言；改源码后必须重截并更新 report，再跑包测试。无论哪种方式，`passed` 只指取证检查未报错，不代表审美或用户偏好通过。
+
 包检查、DOM 断言、截图哈希只验证对应工程事实，不给审美打分。历史 `beauty_gate.py`、`BEAUTY_RUBRIC.md` 与固定投票协议不属于本流程，不因它们的风格阈值改画面。未运行的命令不能写成通过。

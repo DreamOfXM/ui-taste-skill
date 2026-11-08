@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "qualityTiers": {
+    "implementation-demo": "默认级。证明关系可落地、状态齐全、功能可跑；不代表审美优秀，不用来定义好品味的上限。",
+    "benchmark-candidate": "独立盲评给出具体优点，但仍有已知缺陷或未获用户认可；只作候选，不作标杆引用。",
+    "benchmark": "独立盲评通过、已知缺陷清零、证据重绑定、且用户对该画面明确认可后才可标记；当前全库无此级。"
+  },
+  "promotionGate": "implementation-demo 升 benchmark-candidate 需独立盲评给出具体优点；升 benchmark 需先修复全部已知缺陷、重截图绑定证据、再获用户对该画面的明确认可。作者自评不得单独晋级；功能/布局报告通过不等于视觉优秀。",
+  "entries": [
+    {
+      "id": "original-workbench-01",
+      "kind": "original-teaching-example",
+      "task": "find-select-inspect",
+      "platform": "desktop-web",
+      "language": "zh-CN",
+      "states": [
+        "list",
+        "selected",
+        "detail",
+        "empty",
+        "mobile-list",
+        "mobile-detail"
+      ],
+      "lesson": "references/lessons/workbench-relations.md",
+      "implementation": "assets/reference-workbench.html",
+      "sourceUrl": null,
+      "commit": null,
+      "observedAt": "2026-10-28T14:02:16.462Z",
+      "rights": "original-to-this-package-MIT",
+      "qualityTier": "implementation-demo",
+      "qualityNote": "独立盲评：合格但平庸，列位与状态齐全、关系可落地；只教不出错与关系实现，不作审美上限。",
+      "userApprovedAt": null,
+      "knownDefects": [],
+      "evidence": [
+        "assets/reference-evidence/workbench-desktop.png",
+        "assets/reference-evidence/workbench-mobile.png",
+        "assets/reference-evidence/workbench-detail-mobile.png",
+        "assets/reference-evidence/report.json"
+      ],
+      "limits": [
+        "system-font-stack-rendering",
+        "no-user-preference-validation"
+      ]
+    },
+    {
+      "id": "original-editorial-01",
+      "kind": "original-teaching-example",
+      "task": "read-and-locate",
+      "platform": "desktop-web",
+      "language": "zh-CN",
+      "states": [
+        "entry",
+        "article",
+        "mobile-entry",
+        "mobile-article"
+      ],
+      "lesson": "references/visual-examples.md",
+      "implementation": "assets/reference-editorial.html",
+      "sourceUrl": null,
+      "commit": null,
+      "observedAt": "2026-10-28T14:02:16.462Z",
+      "rights": "original-to-this-package-MIT",
+      "qualityTier": "benchmark-candidate",
+      "qualityNote": "独立盲评认为构图与材料有明确优点，但中文断行存在孤字/拆词硬伤；修复并重截图、再获用户认可前不晋级标杆。",
+      "userApprovedAt": null,
+      "knownDefects": [
+        "cjk-line-break-orphan-in-titles"
+      ],
+      "evidence": [
+        "assets/reference-evidence/editorial-desktop.png",
+        "assets/reference-evidence/editorial-article.png",
+        "assets/reference-evidence/report.json"
+      ],
+      "limits": [
+        "system-font-stack-rendering",
+        "no-user-preference-validation",
+        "known-defect-pending-recapture"
+      ]
+    },
+    {
+      "id": "original-studio-01",
+      "kind": "original-teaching-example",
+      "task": "browse-materials-and-inspect",
+      "platform": "desktop-web",
+      "language": "zh-CN",
+      "states": [
+        "gallery",
+        "instrument",
+        "gallery-mobile",
+        "instrument-mobile",
+        "gallery-detail-mobile",
+        "instrument-detail-mobile"
+      ],
+      "lesson": "references/lessons/workbench-relations.md",
+      "implementation": "assets/variant-board.html",
+      "sourceUrl": null,
+      "commit": null,
+      "observedAt": "2026-10-28T14:02:16.462Z",
+      "rights": "original-to-this-package-MIT",
+      "qualityTier": "implementation-demo",
+      "qualityNote": "独立盲评：合格但平庸，两种方向的关系与状态完整；用于教方向选择与关系落地，不作审美上限。",
+      "userApprovedAt": null,
+      "knownDefects": [],
+      "evidence": [
+        "assets/reference-evidence/studio-gallery-desktop.png",
+        "assets/reference-evidence/studio-instrument-desktop.png",
+        "assets/reference-evidence/report.json"
+      ],
+      "limits": [
+        "system-font-stack-rendering",
+        "no-user-preference-validation"
+      ]
+    },
+    {
+      "id": "original-mobile-service-01",
+      "kind": "original-teaching-example",
+      "task": "browse-and-assess",
+      "platform": "mobile-web",
+      "language": "zh-CN",
+      "states": [
+        "list",
+        "detail",
+        "empty",
+        "large-text",
+        "variant-a-contrast"
+      ],
+      "lesson": "references/lessons/mobile-service.md",
+      "implementation": "examples/mobile-service/index.html",
+      "sourceUrl": null,
+      "commit": null,
+      "observedAt": "2026-11-08T11:36:09+08:00",
+      "rights": "original-to-this-package-MIT",
+      "qualityTier": "implementation-demo",
+      "qualityNote": "独立盲评指出的断行/大字chrome/详情对齐/收藏埋没等缺陷已修复并重截图复跑；仍无用户认可，不作标杆，只教关系与状态落地。",
+      "userApprovedAt": null,
+      "knownDefects": [],
+      "evidence": [
+        "examples/mobile-service/evidence/list-b.png",
+        "examples/mobile-service/evidence/list-a.png",
+        "examples/mobile-service/evidence/detail.png",
+        "examples/mobile-service/evidence/large-text.png",
+        "examples/mobile-service/evidence/report.json"
+      ],
+      "limits": [
+        "not-a-native-app",
+        "iframe-capture-context",
+        "no-user-preference-validation"
+      ]
+    }
+  ]
+}

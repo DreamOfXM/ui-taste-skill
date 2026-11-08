@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="zh-CN" data-variant="b" data-large="0">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>邻里办事经验 · 原创教学样例</title>
+<style>
+  :root {
+    --paper: #faf9f7;
+    --surface: #ffffff;
+    --ink: #26221c;
+    --muted: #6b6459;
+    --line: #e7e2d9;
+    --action: #1f6f5c;
+    --action-soft: #eaf3f0;
+    --warn: #8a5a17;
+    --warn-soft: #f7efdf;
+    --pad: 18px;
+    --title-size: 19px;
+    --title-lh: 1.45;
+    --body-size: 16px;
+    --body-lh: 1.65;
+    --meta-size: 14px;
+    --gap-inner: 7px;
+    --gap-group: 13px;
+    --gap-record: 24px;
+    --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  html[data-large="1"] {
+    --title-size: 22px; --body-size: 19px; --meta-size: 16px;
+    --gap-inner: 9px; --gap-group: 16px; --gap-record: 28px;
+  }
+  html[data-large="1"] .brand-row h1 { font-size: 24px; }
+  html[data-large="1"] .brand-row span { font-size: 14px; }
+  html[data-large="1"] #search { font-size: 19px; padding: 12px 14px; }
+  html[data-large="1"] .chips button { font-size: 15px; padding: 9px 14px; }
+  html[data-large="1"] .result-count { font-size: 15px; }
+  html[data-large="1"] #back { font-size: 17px; }
+  html[data-large="1"] .detail-save { font-size: 17px; min-height: 52px; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: var(--font); font-size: var(--body-size); line-height: var(--body-lh);
+    line-break: strict; -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--action); outline-offset: 2px; border-radius: 4px; }
+
+  .teaching-bar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 8px var(--pad); background: #f1efe9; border-bottom: 1px solid var(--line);
+    font-size: 12px; color: var(--muted);
+  }
+  .teaching-bar .note { margin-right: auto; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); }
+  .seg button { padding: 4px 10px; font-size: 12px; color: var(--muted); }
+  .seg button[aria-pressed="true"] { background: #e6e2d8; color: var(--ink); font-weight: 600; }
+  .toggle-large { padding: 4px 10px; font-size: 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--muted); }
+  .toggle-large[aria-pressed="true"] { background: var(--action-soft); color: var(--action); border-color: var(--action); }
+
+  header.app {
+    position: sticky; top: 0; z-index: 5; background: var(--paper);
+    padding: 14px var(--pad) 10px; border-bottom: 1px solid var(--line);
+  }
+  .brand-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .brand-row h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+  .brand-row span { font-size: 12px; color: var(--muted); }
+  #search {
+    width: 100%; padding: 10px 12px; font-size: 16px; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  }
+  #search::placeholder { color: #9a9285; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0 2px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chips button {
+    flex: 0 0 auto; padding: 6px 12px; font-size: 13px; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 999px; background: var(--surface);
+  }
+  .chips button[aria-pressed="true"] { background: var(--action); color: #fff; border-color: var(--action); }
+
+  main { padding: 0 var(--pad) 40px; }
+  .result-count { margin: 14px 0 4px; font-size: 13px; color: var(--muted); }
+
+  /* ---- variant B: full-width title, three spacing roles ---- */
+  .record { padding: var(--gap-record) 0; border-bottom: 1px solid var(--line); }
+  .record-open {
+    display: block; width: 100%; text-align: left; padding: 0;
+    font-size: var(--title-size); line-height: var(--title-lh); font-weight: 600; letter-spacing: -.005em;
+    text-wrap: balance;
+  }
+  .record-open:hover { color: var(--action); }
+  .record-summary { margin: var(--gap-inner) 0 0; color: #4c463d; text-wrap: pretty; }
+  .identity { margin-top: var(--gap-group); display: flex; align-items: flex-start; gap: 10px; }
+  .identity-text { min-width: 0; flex: 1; }
+  .identity-line { font-size: var(--meta-size); color: var(--muted); }
+  .identity-line strong { color: var(--ink); font-weight: 500; }
+  .source-line { margin-top: 4px; font-size: var(--meta-size); line-height: 1.55; color: var(--muted); text-wrap: pretty; }
+  .tip {
+    margin-top: 8px; padding: 8px 10px; font-size: var(--meta-size); line-height: 1.55;
+    color: var(--warn); background: var(--warn-soft); border-radius: 6px; text-wrap: pretty;
+  }
+  .fav {
+    flex: 0 0 auto; width: 44px; height: 44px; margin: -8px -10px 0 0;
+    display: inline-flex; align-items: center; justify-content: center; color: #9a9285; border-radius: 8px;
+  }
+  .fav svg { width: 20px; height: 20px; }
+  .fav[aria-pressed="true"] { color: var(--action); }
+  .fav[aria-pressed="true"] svg path { fill: var(--action-soft); }
+
+  /* ---- variant A: source badge beside title, uniform 12px rhythm, card ---- */
+  html[data-variant="a"] .record {
+    margin-top: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 12px;
+    background: var(--surface);
+  }
+  html[data-variant="a"] .record:first-of-type { margin-top: 12px; }
+  html[data-variant="a"] .title-row { display: flex; align-items: flex-start; gap: 10px; }
+  html[data-variant="a"] .record-open { flex: 1; min-width: 0; font-size: 18px; line-height: 1.5; }
+  html[data-variant="a"] .source-badge {
+    flex: 0 0 auto; max-width: 96px; margin-top: 2px; padding: 3px 8px;
+    font-size: 11px; line-height: 1.4; color: var(--muted);
+    background: #f1efe9; border-radius: 999px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  html[data-variant="a"] .record-summary { margin-top: 12px; font-size: 16px; line-height: 1.6; }
+  html[data-variant="a"] .identity { margin-top: 12px; }
+  html[data-variant="a"] .source-line { display: none; }
+  html[data-variant="a"] .tip { margin-top: 12px; }
+  html[data-variant="b"] .title-row { display: block; }
+  html[data-variant="b"] .source-badge { display: none; }
+
+  .empty { padding: 48px 0; text-align: center; color: var(--muted); }
+  .empty h2 { margin: 0 0 8px; font-size: 17px; font-weight: 500; color: var(--ink); }
+  .empty p { margin: 0 0 16px; font-size: 14px; }
+  .empty button { padding: 8px 16px; font-size: 14px; color: var(--action); border: 1px solid var(--action); border-radius: 8px; }
+
+  /* ---- detail ---- */
+  #detail { display: none; }
+  body[data-view="detail"] #list-view { display: none; }
+  body[data-view="detail"] #detail { display: block; }
+  body[data-view="detail"] header.app { display: none; }
+  body[data-view="detail"] main { padding: 0; }
+  .detail-bar {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px;
+    padding: 10px var(--pad); background: var(--paper); border-bottom: 1px solid var(--line);
+  }
+  #back { display: inline-flex; align-items: center; gap: 6px; padding: 8px 0; font-size: 15px; color: var(--action); border-radius: 8px; }
+  .detail-bar .cat { font-size: 12px; color: var(--muted); }
+  .detail-body { padding: 20px var(--pad) 0; }
+  .detail-body h2 { margin: 0 0 12px; font-size: calc(var(--title-size) + 3px); line-height: 1.4; font-weight: 600; letter-spacing: -.01em; text-wrap: balance; }
+  .detail-body .identity { margin-top: 0; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  .detail-body .prose { margin-top: 16px; }
+  .detail-body .prose p { margin: 0 0 14px; text-wrap: pretty; }
+  .related { margin-top: 24px; }
+  .related h3 { margin: 0 0 4px; font-size: 14px; font-weight: 500; color: var(--muted); }
+  .related button { display: block; width: 100%; text-align: left; padding: 12px 0; font-size: 15px; line-height: 1.5; border-bottom: 1px solid var(--line); }
+  .related button:hover { color: var(--action); }
+  .detail-actions {
+    position: sticky; bottom: 0; margin-top: 20px; padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+    background: var(--paper); border-top: 1px solid var(--line);
+  }
+  .detail-actions > div { padding: 0 var(--pad); }
+  .detail-save {
+    width: 100%; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 15px; color: var(--action); background: var(--action-soft); border: 1px solid var(--action); border-radius: 10px;
+  }
+  .detail-save[aria-pressed="true"] { background: var(--action); color: #fff; }
+  .detail-note { margin: 0; padding: 0 var(--pad) 24px; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body data-view="list">
+  <div class="teaching-bar">
+    <span class="note">原创教学样例 · 内容虚构</span>
+    <span class="seg" role="group" aria-label="排版对照">
+      <button id="variant-a" aria-pressed="false">A 合格稿</button>
+      <button id="variant-b" aria-pressed="true">B 讲究候选</button>
+    </span>
+    <button id="large" class="toggle-large" aria-pressed="false">大字</button>
+  </div>
+
+  <header class="app">
+    <div class="brand-row"><h1>邻里办事经验</h1><span>真实经历 · 来源可查</span></div>
+    <input id="search" type="search" placeholder="搜索材料、地点或事项" aria-label="搜索经验">
+    <div class="chips" id="chips" role="group" aria-label="按类别筛选"></div>
+  </header>
+
+  <main>
+    <section id="list-view" aria-label="经验列表">
+      <p class="result-count" id="count"></p>
+      <div id="records"></div>
+      <div class="empty" id="empty" hidden>
+        <h2>没有匹配的经验</h2>
+        <p>换个词，或清除筛选看看全部。</p>
+        <button id="clear">清除筛选</button>
+      </div>
+    </section>
+
+    <section id="detail" aria-label="经验详情">
+      <div class="detail-bar">
+        <button id="back">← 返回</button>
+        <span class="cat" id="detail-cat"></span>
+      </div>
+      <div class="detail-body">
+        <h2 id="detail-title"></h2>
+        <div class="identity">
+          <div class="identity-text">
+            <div class="identity-line" id="detail-identity"></div>
+            <div class="source-line" id="detail-source"></div>
+          </div>
+        </div>
+        <div class="tip" id="detail-tip" hidden></div>
+        <div class="prose" id="detail-prose"></div>
+        <div class="related" id="related"></div>
+      </div>
+      <div class="detail-actions">
+        <div>
+          <button class="detail-save" id="detail-save" aria-pressed="false">收藏这条经验</button>
+        </div>
+      </div>
+      <p class="detail-note">收藏保存在此浏览器，无需连接服务。</p>
+    </section>
+  </main>
+
+<script>
+(function () {
+  'use strict';
+  var DATA = [
+    { id: 'juzhuzheng', cat: '证件办理', title: '第一次办理居住证，我补交了哪些材料',
+      summary: '租房合同备案和房东身份证复印件是最容易漏的两项，我把窗口给的清单原样抄了下来。',
+      author: '林晓', role: '本人办理', date: '2026-10-18',
+      source: '作者本人于今年 10 月在窗口办理，材料清单以现场回执为准',
+      tip: '', body: [
+        '去之前我以为带上身份证和租房合同就够了，结果窗口先问合同有没有做备案。没备案的合同要先去街道补，当天办不完。',
+        '房东身份证复印件也要房东本人签字注明"仅供办理居住证使用"。我临时打电话让房东拍照发过来，在打印店补了签字页。',
+        '回执上会把缺的材料列清楚，补交后不用重新排队取号，直接到原窗口核验。我把回执拍照留底，第二次去只花了十分钟。' ] },
+    { id: 'jiazhao', cat: '居住社区', title: '替家人申请居家照护服务：预约前需要确认的三件事',
+      summary: '评估等级、上门时间和费用结算方式各问一遍，能避免预约后再改期。',
+      author: '周敏', role: '家属代办', date: '2026-10-12',
+      source: '社区服务窗口口头核对，具体以街道公布流程为准',
+      tip: '提示：不同街道流程不同，先电话确认再跑窗口。', body: [
+        '第一件是评估等级。照护服务按评估结果安排，等级没出来之前预约的时间都只是意向，窗口建议先约评估。',
+        '第二件是上门时间段。有的街道只在工作日上午上门，家里如果只有老人在，要确认老人能开门并说清需求。',
+        '第三件是结算方式。按月结还是按次结、能否用补贴抵扣，各家不一样。问清后再签协议，避免后面反复改。' ] },
+    { id: 'gongjijin', cat: '社保公积金', title: '公积金提取到账时间：我这次用了七个工作日',
+      summary: '线上提交后状态停在"审核中"四天，不用反复刷新，第七个工作日一次性到账。',
+      author: '何建', role: '本人办理', date: '2026-10-06',
+      source: '作者本人提取记录，到账时间因银行而异',
+      tip: '', body: [
+        '提交后前两天状态一直是"已受理"，第三天变"审核中"，我以为卡住了，打客服才知道这是正常顺序。',
+        '审核通过后状态变"拨付中"，又等了两个工作日银行才入账。客服说不同银行到账差一到两天。',
+        '经验是提交后第三个工作日再看一次状态就够了，反复刷新不会更快；超过十个工作日没动再打电话。' ] },
+    { id: 'jiati', cat: '居住社区', title: '老旧小区加装电梯：低层住户最关心的三个问题',
+      summary: '采光、噪音和分摊比例是会上被问最多的，我把答复和还没定的部分分开记。',
+      author: '陈国平', role: '业委会成员', date: '2026-09-28',
+      source: '业委会会议记录整理，方案以公示为准',
+      tip: '', body: [
+        '采光方面，设计方给了冬至日的日照模拟，低层最不利户型仍满足标准，但模拟图和实际感受有差距，会上同意公示后实地再看。',
+        '噪音方面，机房位置改到远离卧室一侧，运行噪声承诺低于限值，写入合同附件。',
+        '分摊比例还没定：一二楼是否出资、出多少，两次会都没谈拢，这部分我标成"待定"，不写成已达成。' ] },
+    { id: 'quanzhi', cat: '出行登记', title: '犬只登记线上办：照片要求比想象中严格',
+      summary: '侧面全身照要露出四肢和尾巴，背景纯色，我重拍了三次才过。',
+      author: '赵一舟', role: '本人办理', date: '2026-09-20',
+      source: '作者本人今年 9 月线上提交并通过',
+      tip: '', body: [
+        '第一次拍的是正面坐着的照片，被退回，要求侧面站立全身照。第二次背景是小区花园，又因背景杂乱被退。',
+        '第三次在家面白墙前，让家人用零食引它站直，四肢和尾巴都露出来，一次通过。',
+        '免疫证编号要和证实物一致，拍照时把证放在狗旁边一起拍不行，要单独上传证件照。' ] },
+    { id: 'shuidian', cat: '居住社区', title: '水电过户不用跑营业厅：一次线上结清的步骤',
+      summary: '先结清欠费再提交过户，否则会被退回；电表读数拍照留底能少扯皮。',
+      author: '吴珊', role: '本人办理', date: '2026-09-12',
+      source: '作者本人过户记录，欠费需先结清',
+      tip: '', body: [
+        '我先在 app 里查了欠费，把上一户留下的两个月欠费结清，再提交过户申请，当天就受理了。',
+        '提交时上传了房产证页和双方身份证，电表读数拍了一张带日期的照片作为交接依据。',
+        '朋友没结清欠费就提交，被退回要求先结清，多跑了一趟。顺序很重要。' ] },
+    { id: 'jiezhen', cat: '出行登记', title: '图书馆借阅证押金退还：闭馆前半小时别去',
+      summary: '退押金只在服务台办，自助机不行；赶在闭馆前半小时去往往排不到。',
+      author: '郑好', role: '本人办理', date: '2026-09-02',
+      source: '作者本人退证经历，服务台时间以馆方公告为准',
+      tip: '', body: [
+        '自助借还机只能借还书，退证退押金要到一楼服务台人工办。我第一次去自助机排了半天队才被告知。',
+        '服务台在闭馆前半小时停止取号，我那次差十分钟没排上，第二天上午去十分钟办完。',
+        '押金原路退回，现金押金的带身份证和押金条；押金条丢了要填遗失声明，多花一点时间。' ] },
+    { id: 'zhizhao', cat: '证件办理', title: '营业执照地址变更：先改租赁备案再提交',
+      summary: '顺序错了会白跑：租赁备案变更在先，营业执照变更在后，两边名称要一致。',
+      author: '孙立', role: '经办人', date: '2026-08-24',
+      source: '作者公司经办记录，材料以登记机关要求为准',
+      tip: '', body: [
+        '我们先提交了营业执照变更，被退回，理由是新地址的租赁备案还是旧地址。',
+        '先去街道把租赁备案变更办好，拿到新备案证明，再提交执照变更，一次通过。',
+        '两份材料上的地址写法要完全一致，包括楼层和房间号，差一个"室"字都可能被要求补正。' ] }
+  ];
+  var CATS = ['全部', '证件办理', '居住社区', '社保公积金', '出行登记'];
+  var state = { cat: '全部', query: '', favorites: {}, openId: null, scroll: 0 };
+  try { state.favorites = JSON.parse(localStorage.getItem('mobile-service-favs') || '{}'); } catch (e) { state.favorites = {}; }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var recordsEl = $('records'), countEl = $('count'), emptyEl = $('empty');
+
+  function saveFavs() { try { localStorage.setItem('mobile-service-favs', JSON.stringify(state.favorites)); } catch (e) {} }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function favIcon() { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21V3z" stroke-linejoin="round"/></svg>'; }
+
+  function filtered() {
+    var q = state.query.trim().toLowerCase();
+    return DATA.filter(function (r) {
+      var okCat = state.cat === '全部' || r.cat === state.cat;
+      var okQ = !q || (r.title + r.summary + r.author + r.cat).toLowerCase().indexOf(q) !== -1;
+      return okCat && okQ;
+    });
+  }
+
+  function renderChips() {
+    $('chips').innerHTML = CATS.map(function (c) {
+      return '<button data-cat="' + esc(c) + '" aria-pressed="' + (c === state.cat) + '">' + esc(c) + '</button>';
+    }).join('');
+  }
+
+  function renderList() {
+    var rows = filtered();
+    countEl.textContent = rows.length + ' 条经验' + (state.cat === '全部' ? '' : ' · ' + state.cat);
+    emptyEl.hidden = rows.length !== 0;
+    recordsEl.innerHTML = rows.map(function (r) {
+      var fav = !!state.favorites[r.id];
+      return '<article class="record" data-id="' + esc(r.id) + '">' +
+        '<div class="title-row">' +
+          '<button class="record-open" data-open="' + esc(r.id) + '">' + esc(r.title) + '</button>' +
+          '<span class="source-badge">' + esc(r.role) + '</span>' +
+        '</div>' +
+        '<p class="record-summary">' + esc(r.summary) + '</p>' +
+        '<div class="identity">' +
+          '<div class="identity-text">' +
+            '<div class="identity-line"><strong>' + esc(r.author) + '</strong> · ' + esc(r.role) + ' · ' + esc(r.date) + '</div>' +
+            '<div class="source-line">' + esc(r.source) + '</div>' +
+            (r.tip ? '<div class="tip">' + esc(r.tip) + '</div>' : '') +
+          '</div>' +
+          '<button class="fav" data-fav="' + esc(r.id) + '" aria-pressed="' + fav + '" aria-label="收藏 ' + esc(r.title) + '">' + favIcon() + '</button>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+  }
+
+  function openDetail(id) {
+    var r = DATA.find(function (x) { return x.id === id; });
+    if (!r) return;
+    state.openId = id; state.scroll = window.scrollY;
+    $('detail-cat').textContent = r.cat;
+    $('detail-title').textContent = r.title;
+    $('detail-identity').innerHTML = '<strong>' + esc(r.author) + '</strong> · ' + esc(r.role) + ' · ' + esc(r.date);
+    $('detail-source').textContent = r.source;
+    var tip = $('detail-tip'); tip.hidden = !r.tip; tip.textContent = r.tip || '';
+    $('detail-prose').innerHTML = r.body.map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('');
+    var rel = DATA.filter(function (x) { return x.cat === r.cat && x.id !== r.id; }).slice(0, 2);
+    $('related').innerHTML = rel.length ? '<h3>同类经验</h3>' + rel.map(function (x) {
+      return '<button data-open="' + esc(x.id) + '">' + esc(x.title) + '</button>';
+    }).join('') : '';
+    syncDetailSave();
+    document.body.dataset.view = 'detail';
+    window.scrollTo(0, 0);
+    $('back').focus();
+  }
+  function syncDetailSave() {
+    var fav = !!state.favorites[state.openId];
+    var b = $('detail-save');
+    b.setAttribute('aria-pressed', String(fav));
+    b.textContent = fav ? '已收藏 · 点击取消' : '收藏这条经验';
+  }
+  function closeDetail() {
+    document.body.dataset.view = 'list';
+    state.openId = null;
+    renderList();
+    window.scrollTo(0, state.scroll);
+  }
+
+  $('chips').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-cat]'); if (!b) return;
+    state.cat = b.dataset.cat; renderChips(); renderList();
+  });
+  $('search').addEventListener('input', function (e) { state.query = e.target.value; renderList(); });
+  $('clear').addEventListener('click', function () {
+    state.cat = '全部'; state.query = ''; $('search').value = ''; renderChips(); renderList();
+  });
+  recordsEl.addEventListener('click', function (e) {
+    var f = e.target.closest('[data-fav]');
+    if (f) { var id = f.dataset.fav; state.favorites[id] = !state.favorites[id]; saveFavs(); renderList(); return; }
+    var o = e.target.closest('[data-open]'); if (o) openDetail(o.dataset.open);
+  });
+  $('back').addEventListener('click', closeDetail);
+  $('related').addEventListener('click', function (e) {
+    var o = e.target.closest('[data-open]'); if (o) openDetail(o.dataset.open);
+  });
+  $('detail-save').addEventListener('click', function () {
+    state.favorites[state.openId] = !state.favorites[state.openId]; saveFavs(); syncDetailSave();
+  });
+  $('variant-a').addEventListener('click', function () { setVariant('a'); });
+  $('variant-b').addEventListener('click', function () { setVariant('b'); });
+  function setVariant(v) {
+    document.documentElement.dataset.variant = v;
+    $('variant-a').setAttribute('aria-pressed', String(v === 'a'));
+    $('variant-b').setAttribute('aria-pressed', String(v === 'b'));
+  }
+  $('large').addEventListener('click', function () {
+    var on = document.documentElement.dataset.large === '1';
+    document.documentElement.dataset.large = on ? '0' : '1';
+    $('large').setAttribute('aria-pressed', String(!on));
+  });
+
+  renderChips(); renderList();
+
+  // Deep links let a specific teaching state be opened and captured directly.
+  var params = new URLSearchParams(location.hash.slice(1));
+  if (params.get('variant') === 'a') setVariant('a');
+  if (params.get('large') === '1') { document.documentElement.dataset.large = '1'; $('large').setAttribute('aria-pressed', 'true'); }
+  if (params.get('q')) { state.query = params.get('q'); $('search').value = state.query; renderList(); }
+  if (params.get('open')) openDetail(params.get('open'));
+})();
+</script>
+</body>
+</html>

@@ -74,7 +74,7 @@ class SkillPackageTests(unittest.TestCase):
 
     def test_execution_document_links_resolve(self):
         documents = [ROOT / 'SKILL.md', *sorted(ROOT.glob('README*.md')),
-                     *sorted((ROOT / 'references').glob('*.md'))]
+                     *sorted((ROOT / 'references').rglob('*.md'))]
         for document in documents:
             content = re.sub(r'```.*?```', '', document.read_text(), flags=re.S)
             for target in re.findall(r'!?\[[^\]]*\]\(([^\s)]+)\)', content):
@@ -87,9 +87,94 @@ class SkillPackageTests(unittest.TestCase):
                     self.assertTrue(path.is_file(), f'Missing linked file: {path}')
 
     def test_execution_documents_have_no_unresolved_markers(self):
-        for path in [ROOT / 'SKILL.md', *sorted((ROOT / 'references').glob('*.md'))]:
+        for path in [ROOT / 'SKILL.md', *sorted((ROOT / 'references').rglob('*.md'))]:
             with self.subTest(path=path.name):
                 self.assertNotIn('TODO:', path.read_text())
+
+    def test_task_index_is_single_and_lessons_are_indexed(self):
+        self.assertFalse((ROOT / 'references' / 'task-atlas.md').exists(),
+                         'Task index must live only in visual-examples.md')
+        index = (ROOT / 'references' / 'visual-examples.md').read_text(encoding='utf-8')
+        self.assertIn('唯一任务索引', index)
+        for lesson in sorted((ROOT / 'references' / 'lessons').glob('*.md')):
+            with self.subTest(lesson=lesson.name):
+                self.assertIn(f'lessons/{lesson.name}', index, 'Every lesson must be reachable from the single index')
+
+    def test_sources_registry_fields_and_paths(self):
+        registry = json.loads((ROOT / 'references' / 'sources.json').read_text(encoding='utf-8'))
+        entries = registry['entries']
+        self.assertTrue(entries)
+        ids = [entry['id'] for entry in entries]
+        self.assertEqual(len(ids), len(set(ids)), 'Duplicate source ids')
+        required = ['id', 'kind', 'task', 'platform', 'language', 'states', 'lesson',
+                    'implementation', 'sourceUrl', 'commit', 'observedAt', 'rights', 'evidence', 'limits',
+                    'qualityTier', 'qualityNote', 'userApprovedAt', 'knownDefects']
+        for entry in entries:
+            with self.subTest(entry=entry['id']):
+                for field in required:
+                    self.assertIn(field, entry)
+                self.assertTrue(entry['rights'].strip(), 'Rights must be stated, not left uncertain')
+                self.assertNotIn('to-be-confirmed', entry['rights'])
+                for key in ('lesson', 'implementation'):
+                    self.assertTrue((ROOT / entry[key]).is_file(), f'Missing {key}: {entry[key]}')
+                for evidence in entry['evidence']:
+                    self.assertTrue((ROOT / evidence).is_file(), f'Missing evidence: {evidence}')
+
+    def test_reference_quality_tiers_and_promotion_gate(self):
+        registry = json.loads((ROOT / 'references' / 'sources.json').read_text(encoding='utf-8'))
+        tiers = registry['qualityTiers']
+        self.assertEqual(set(tiers), {'implementation-demo', 'benchmark-candidate', 'benchmark'})
+        self.assertTrue(registry['promotionGate'].strip(), 'Promotion gate must be stated')
+        index = (ROOT / 'references' / 'visual-examples.md').read_text(encoding='utf-8')
+        self.assertIn('## 参考质量分级与准入', index, 'Tiering must be visible at the point of selection')
+        for entry in registry['entries']:
+            with self.subTest(entry=entry['id']):
+                self.assertIn(entry['qualityTier'], tiers)
+                self.assertTrue(entry['qualityNote'].strip(), 'Each example must state why it is at its tier')
+                self.assertIsInstance(entry['knownDefects'], list)
+                if entry['qualityTier'] == 'benchmark':
+                    self.assertTrue(entry['userApprovedAt'], 'Benchmark requires explicit user approval')
+                    self.assertEqual(entry['knownDefects'], [], 'Benchmark requires zero known defects')
+                if entry['qualityTier'] == 'benchmark-candidate':
+                    self.assertTrue(entry['knownDefects'] or not entry['userApprovedAt'],
+                                    'Candidate must still have a defect or lack approval')
+
+    def test_mobile_service_example_is_offline(self):
+        html = (ROOT / 'examples' / 'mobile-service' / 'index.html').read_text(encoding='utf-8')
+        parser = ResourceParser()
+        parser.feed(html)
+        parser.close()
+        self.assertEqual(len(parser.ids), len(set(parser.ids)), 'Duplicate static HTML IDs')
+        for resource in parser.resources:
+            with self.subTest(resource=resource):
+                self.assertTrue(resource.startswith(('data:', '#')), 'Teaching example must be offline')
+        css = '\n'.join(parser.styles)
+        self.assertIsNone(re.search(r'@import\b', css, flags=re.I), 'No remote CSS imports')
+
+    def test_mobile_service_evidence_matches_current_source(self):
+        evidence = (ROOT / 'examples' / 'mobile-service' / 'evidence').resolve()
+        report = json.loads((evidence / 'report.json').read_text(encoding='utf-8'))
+        source = ROOT / 'examples' / 'mobile-service' / 'index.html'
+        self.assertEqual(report['sourceSha256'], hashlib.sha256(source.read_bytes()).hexdigest(),
+                         'Example changed: recapture and update report')
+        self.assertEqual(report['status'], 'passed')
+        self.assertTrue(report['checks'])
+        self.assertTrue(report['limits'], 'Evidence must state its limits')
+        captured_at = datetime.fromisoformat(report['capturedAt'].replace('Z', '+00:00'))
+        self.assertIsNotNone(captured_at.tzinfo)
+        filenames = [capture['file'] for capture in report['captures']]
+        self.assertEqual(len(filenames), len(set(filenames)))
+        self.assertTrue({'list-b.png', 'list-a.png', 'detail.png', 'empty.png', 'large-text.png'}.issubset(filenames))
+        for capture in report['captures']:
+            with self.subTest(file=capture['file']):
+                screenshot = (evidence / capture['file']).resolve()
+                self.assertTrue(screenshot.is_relative_to(evidence))
+                content = screenshot.read_bytes()
+                self.assertTrue(content.startswith(b'\x89PNG\r\n\x1a\n'))
+                self.assertEqual(hashlib.sha256(content).hexdigest(), capture['sha256'])
+                self.assertEqual(capture['viewport'], [390, 844])
+                self.assertEqual(int.from_bytes(content[16:20], 'big'), 390)
+                self.assertEqual(int.from_bytes(content[20:24], 'big'), 844)
 
     def test_offline_lab_has_no_external_resources_or_duplicate_ids(self):
         for filename in ('app-craft-lab.html', 'reference-workbench.html', 'reference-editorial.html', 'variant-board.html'):
