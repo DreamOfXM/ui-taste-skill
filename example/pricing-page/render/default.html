@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>裸默认版 · DevTools 定价页</title>
+<style>
+  /* 这一版刻意还原「不给约束时模型最可能的输出」：
+     紫渐变 / 0.5rem 圆角 / #9CA3AF 灰 / 四件套推荐档 / 48px 价格 / 卡片阴影 / 三列图标区 */
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;
+    background:#fff;color:#111827;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  header{padding:80px 0 56px;text-align:center}
+  .logo{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;margin-bottom:32px}
+  .logo i{width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,#6366F1,#8B5CF6);display:block}
+  h1{font-size:44px;line-height:1.2;font-weight:700;letter-spacing:-.02em;margin-bottom:16px}
+  .sub{font-size:17px;color:#6B7280;max-width:560px;margin:0 auto 32px}
+  .hero-cta{display:inline-block;padding:14px 28px;border-radius:8px;color:#fff;font-weight:600;
+    background:linear-gradient(135deg,#6366F1,#8B5CF6);text-decoration:none;
+    box-shadow:0 4px 14px rgba(99,102,241,.4)}
+  .toggle{display:flex;justify-content:center;gap:4px;margin:48px 0 8px}
+  .toggle button{border:none;background:#F3F4F6;color:#6B7280;padding:9px 18px;border-radius:999px;font-size:13px;cursor:pointer}
+  .toggle button.on{background:#111827;color:#fff}
+  .save{text-align:center;font-size:13px;color:#9CA3AF;margin-bottom:32px}
+
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding-bottom:72px}
+  .tier{
+    background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:32px 24px;
+    box-shadow:0 4px 14px rgba(0,0,0,.08);position:relative;
+  }
+  .tier.pop{
+    border:2px solid #6366F1;background:#F5F3FF;
+    box-shadow:0 12px 32px rgba(99,102,241,.24);transform:scale(1.03);
+    padding-top:40px;
+  }
+  .badge{
+    position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+    background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;font-size:12px;font-weight:600;
+    padding:5px 14px;border-radius:999px;white-space:nowrap;
+  }
+  .tname{font-size:15px;font-weight:600;margin-bottom:6px}
+  .tdesc{font-size:13px;color:#9CA3AF;margin-bottom:20px;min-height:38px}
+  .price{font-size:48px;font-weight:700;letter-spacing:-.02em;line-height:1}
+  .price small{font-size:14px;font-weight:400;color:#9CA3AF;letter-spacing:0}
+  .tbtn{
+    display:block;text-align:center;margin:24px 0;padding:12px;border-radius:8px;
+    font-size:14px;font-weight:600;text-decoration:none;
+    background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;
+  }
+  .tier:not(.pop) .tbtn{background:#F3F4F6;color:#111827}
+  .flist{list-style:none;font-size:13.5px;color:#4B5563}
+  .flist li{padding:7px 0 7px 22px;position:relative}
+  .flist li::before{content:"✓";position:absolute;left:0;color:#6366F1;font-weight:700}
+  .flist li.mut{color:#9CA3AF}
+  .flist li.mut::before{content:"—";color:#D1D5DB}
+
+  .features{background:#F9FAFB;padding:72px 0}
+  .features h2{text-align:center;font-size:28px;font-weight:700;margin-bottom:8px}
+  .features p.fs{text-align:center;color:#9CA3AF;font-size:15px;margin-bottom:40px}
+  .fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+  .f{background:#fff;border-radius:12px;padding:24px;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+  .f .ic{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#EEF2FF,#F5F3FF);
+    display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:14px}
+  .f h3{font-size:15px;font-weight:600;margin-bottom:6px}
+  .f p{font-size:13px;color:#9CA3AF;line-height:1.65}
+
+  footer{border-top:1px solid #F3F4F6;padding:32px 0;font-size:12px;color:#9CA3AF;text-align:center}
+  @media(max-width:800px){
+    .tiers,.fgrid{grid-template-columns:1fr}
+    h1{font-size:32px}
+    .tier.pop{transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><i></i>Observable</div>
+    <h1>让每一次请求都说得清</h1>
+    <p class="sub">分布式追踪、日志与指标，一个 SDK 全收。为工程团队打造的可观测性平台。</p>
+    <a class="hero-cta" href="#">免费开始</a>
+  </header>
+
+  <div class="toggle">
+    <button class="on">月付</button>
+    <button>年付</button>
+  </div>
+  <p class="save">选择年付可省 17%</p>
+
+  <section class="tiers">
+    <div class="tier">
+      <div class="tname">Free</div>
+      <p class="tdesc">适合个人项目和小规模试用</p>
+      <div class="price">$0<small> /月</small></div>
+      <a class="tbtn" href="#">开始使用</a>
+      <ul class="flist">
+        <li>最多 5 个席位</li>
+        <li>30 天日志保留</li>
+        <li>分布式追踪</li>
+        <li class="mut">自定义告警</li>
+        <li class="mut">SSO 单点登录</li>
+      </ul>
+    </div>
+
+    <div class="tier pop">
+      <div class="badge">最受欢迎</div>
+      <div class="tname">Team</div>
+      <p class="tdesc">适合正在扩张的工程团队</p>
+      <div class="price">$12<small> /人/月</small></div>
+      <a class="tbtn" href="#">免费试用 14 天</a>
+      <ul class="flist">
+        <li>不限席位</li>
+        <li>90 天日志保留</li>
+        <li>分布式追踪</li>
+        <li>自定义告警</li>
+        <li class="mut">SSO 单点登录</li>
+      </ul>
+    </div>
+
+    <div class="tier">
+      <div class="tname">Enterprise</div>
+      <p class="tdesc">适合有合规与私有化需求的组织</p>
+      <div class="price" style="font-size:32px">定制</div>
+      <a class="tbtn" href="#">联系销售</a>
+      <ul class="flist">
+        <li>不限席位</li>
+        <li>不限保留期</li>
+        <li>分布式追踪</li>
+        <li>自定义告警</li>
+        <li>SSO 单点登录</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<section class="features">
+  <div class="wrap">
+    <h2>为什么选择 Observable</h2>
+    <p class="fs">从指标到调用链，一站式解决</p>
+    <div class="fgrid">
+      <div class="f"><div class="ic">⚡</div><h3>极速接入</h3><p>三行代码接入，兼容 OpenTelemetry。5 分钟看到第一条数据。</p></div>
+      <div class="f"><div class="ic">🔍</div><h3>全链路追踪</h3><p>从网关到数据库，每一次调用的耗时与状态一目了然。</p></div>
+      <div class="f"><div class="ic">🛡️</div><h3>企业级安全</h3><p>SOC2 认证，数据加密存储，支持私有化部署。</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>© 2026 Observable · 价格与条款</footer>
+</body>
+</html>

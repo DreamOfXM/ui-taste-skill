@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>三版对照 · DevTools 定价页</title>
+<style>
+  :root{
+    --paper:#151619; --ink:#E9E6DE; --ink2:#A8A49B; --ink3:#74716A;
+    --line:rgba(233,230,222,.14); --accent:#D08C67; --deep:#6FBFA8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;overflow:hidden}
+  .bar{
+    height:54px;display:flex;align-items:center;gap:20px;padding:0 20px;
+    border-bottom:1px solid var(--line);background:rgba(21,22,25,.96);
+    position:fixed;top:0;left:0;right:0;z-index:10;backdrop-filter:blur(8px);
+  }
+  .bar .t{font-size:12.5px;letter-spacing:.04em;color:var(--ink2);white-space:nowrap}
+  .tabs{display:flex;gap:2px;margin-left:8px}
+  .tabs button{
+    background:none;border:none;color:var(--ink3);font-family:inherit;font-size:12.5px;
+    padding:6px 14px;border-radius:3px;cursor:pointer;white-space:nowrap;
+  }
+  .tabs button:hover{color:var(--ink)}
+  .tabs button.on{background:rgba(233,230,222,.09);color:var(--ink)}
+  .tabs button .d{font-size:10.5px;color:var(--ink3);margin-left:6px}
+  .tabs button.on .d{color:var(--accent)}
+  .hint{margin-left:auto;font-size:11.5px;color:var(--ink3);white-space:nowrap}
+
+  .panel{
+    position:fixed;top:54px;left:0;right:0;z-index:9;background:#1B1D21;
+    border-bottom:1px solid var(--line);padding:16px 20px;display:none;
+    font-size:12.5px;line-height:1.7;color:var(--ink2);
+  }
+  .panel.open{display:block}
+  .panel .row{display:flex;gap:28px;flex-wrap:wrap}
+  .panel b{color:var(--ink);font-weight:500}
+  .panel .k{color:var(--accent)}
+  .panel .g{color:var(--deep)}
+  iframe{position:fixed;top:54px;left:0;width:100%;height:calc(100vh - 54px);border:none;background:#fff}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <span class="t">DevTools 定价页 · 同一 brief 三版</span>
+  <div class="tabs">
+    <button data-src="default.html">裸默认<span class="d">无约束</span></button>
+    <button data-src="pass-a.html" class="on">稿 A<span class="d">档位在前</span></button>
+    <button data-src="pass-b.html">稿 B<span class="d">整页一张表</span></button>
+  </div>
+  <button class="hint" id="tg">看三版差在哪 ⌄</button>
+</div>
+
+<div class="panel" id="pn">
+  <div class="row">
+    <div style="flex:1;min-width:280px">
+      <b>裸默认</b> —— 不给任何约束时模型最可能的输出。它不丑，它是<u>平均</u>。<br>
+      紫色渐变 · 全局 0.5rem 圆角 · <span class="k">#9CA3AF 次要文字（2.54:1，不合格）</span> · 48px 粗体价格 · 三张白卡 + 阴影 · 推荐档四件套叠加（彩底+边框+阴影+角标）· 三列图标区
+    </div>
+    <div style="flex:1;min-width:280px">
+      <b>稿 A</b> —— 顺序：这是什么 → 周期 → 三档 → 能力表 → 信任 → FAQ。<br>
+      暖白纸底 · 衬线标题 · <span class="g">24px 等宽价格（h1 的 63%）</span> · 细线分隔无卡片 · <span class="g">推荐档只有一条 2px 竖线</span> · 全页唯一实心按钮
+    </div>
+    <div style="flex:1;min-width:280px">
+      <b>稿 B</b> —— 同一份账本，<b>相反的结构轴</b>：先给差异，再给结论。<br>
+      整页一张表，档位是列、能力是行，价格落在表尾。视觉语言与 A 完全一致（同底色/同墨色/同圆角/同字号刻度），只换了信息顺序。放弃：单屏看完一档的便利。
+    </div>
+  </div>
+</div>
+
+<iframe id="fr" src="pass-a.html" title="预览"></iframe>
+
+<script>
+  const fr = document.getElementById('fr');
+  const btns = [...document.querySelectorAll('.tabs button')];
+  btns.forEach(b => b.addEventListener('click', () => {
+    btns.forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    fr.src = b.dataset.src;
+  }));
+  const pn = document.getElementById('pn'), tg = document.getElementById('tg');
+  tg.addEventListener('click', () => {
+    pn.classList.toggle('open');
+    tg.textContent = pn.classList.contains('open') ? '收起 ⌃' : '看三版差在哪 ⌄';
+    fr.style.top = pn.classList.contains('open') ? (54 + pn.offsetHeight) + 'px' : '54px';
+    fr.style.height = pn.classList.contains('open')
+      ? 'calc(100vh - ' + (54 + pn.offsetHeight) + 'px)' : 'calc(100vh - 54px)';
+  });
+</script>
+</body>
+</html>

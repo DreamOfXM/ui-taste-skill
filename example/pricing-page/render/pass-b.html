@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>稿 B · DevTools 定价页</title>
+<style>
+  /* 稿 B：同一份账本，相反的结构轴
+     顺序：先给差异（整页一张表），再给结论（价格落在表尾）
+     视觉语言与稿 A 完全相同：底色/墨色/强调色/圆角/字号/刻度都没变，只换了信息顺序。 */
+  :root{
+    --paper:#FBFAF7; --ink:#2B2A26; --ink2:#6B6F76; --ink3:#8A877D;
+    --line:rgba(43,42,38,.12); --accent:#0F5F52;
+    --serif:"Songti SC","Noto Serif SC","Source Han Serif SC",Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--paper);color:var(--ink);font-family:var(--sans);
+    font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 24px}
+
+  .top{padding:88px 0 0}
+  .brand{font-size:12px;letter-spacing:.14em;color:var(--ink2);margin-bottom:64px;font-weight:500}
+  h1{font-family:var(--serif);font-size:38px;line-height:1.15;font-weight:600;letter-spacing:.01em;margin-bottom:16px;max-width:22em}
+  .sub{font-size:15px;color:var(--ink2);max-width:38em;line-height:1.7}
+
+  /* ── 整页一张表：列是档位，行是能力 ── */
+  .board{margin-top:48px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:720px}
+  th,td{padding:13px 18px;text-align:left;vertical-align:baseline;border-bottom:1px solid var(--line)}
+  tbody th{font-weight:400;color:var(--ink2);width:34%;padding-left:0;font-size:13px}
+  td{font-variant-numeric:tabular-nums;text-align:center;width:22%}
+  td b{font-weight:500;color:var(--ink)}
+  td.dim{color:var(--ink3)}
+
+  /* 表头：档位名 */
+  thead th{
+    text-align:center;vertical-align:bottom;padding-top:8px;padding-bottom:16px;
+    border-bottom:1px solid var(--line);
+  }
+  thead th:first-child{text-align:left;padding-left:0;font-size:11px;letter-spacing:.08em;color:var(--ink3);font-weight:500}
+  thead th .nm{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:.01em;color:var(--ink);display:block}
+  thead th .for{font-size:11.5px;color:var(--ink2);font-weight:400;display:block;margin-top:4px;line-height:1.5}
+
+  /* 推荐列：一条 2px 竖线，贯穿全表 */
+  .rec-col{border-left:2px solid var(--accent)}
+  thead th.rec-col{padding-left:18px}
+  thead th.rec-col .nm{color:var(--accent)}
+  .tagname{font-size:11px;letter-spacing:.08em;color:var(--accent);display:block;margin-bottom:4px;font-weight:500}
+
+  /* 价格行：表尾，视觉上不放大 */
+  .price-row td{padding-top:22px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+  .price-row th{padding-top:22px;font-size:13px;color:var(--ink)}
+  .p{font-size:24px;font-weight:500;letter-spacing:-.01em;line-height:1.2}
+  .p span{font-size:12px;font-weight:400;color:var(--ink2);letter-spacing:0;display:block;margin-top:2px}
+
+  /* CTA 行 */
+  .cta-row td{border-bottom:none;padding-top:18px;padding-bottom:28px}
+  .cta-row th{border-bottom:none}
+  .cta{
+    display:flex;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;
+    font-size:13.5px;text-decoration:none;border-radius:6px;
+    border:1px solid var(--line);color:var(--ink);
+  }
+  .cta.solid{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+  a:focus-visible,button:focus-visible,summary:focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;border-radius:2px;
+  }
+
+  /* 脚注 / 信任 */
+  .foot{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:56px;border-top:1px solid var(--line)}
+  .foot div{padding:24px 32px 24px 0;font-size:13px;color:var(--ink2);line-height:1.65}
+  .foot div + div{border-left:1px solid var(--line);padding-left:32px}
+  .foot b{display:block;color:var(--ink);font-weight:500;margin-bottom:3px;font-size:13.5px}
+
+  .faq{padding:56px 0 96px;max-width:640px}
+  .faq h2{font-family:var(--serif);font-size:19px;font-weight:600;margin-bottom:16px}
+  details{border-bottom:1px solid var(--line);padding:13px 0}
+  summary{cursor:pointer;font-size:14px;list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"＋";color:var(--ink3);margin-right:10px;font-size:12px}
+  details[open] summary::before{content:"－"}
+  details p{font-size:13.5px;color:var(--ink2);padding:10px 0 4px 24px}
+
+  .periodbar{display:flex;align-items:baseline;gap:28px;margin-top:40px;border-bottom:1px solid var(--line)}
+  .periodbar button{
+    background:none;border:none;font-family:var(--sans);font-size:13px;color:var(--ink2);
+    padding:0 0 10px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;
+  }
+  .periodbar button.on{color:var(--ink);border-bottom-color:var(--accent)}
+  .periodbar .save{font-size:12px;color:var(--ink3);margin-left:auto;padding-bottom:10px}
+
+  @media(max-width:760px){
+    h1{font-size:28px}.top{padding-top:48px}.brand{margin-bottom:40px}
+    .foot{grid-template-columns:1fr}
+    .foot div + div{border-left:none;padding-left:0;border-top:1px solid var(--line)}
+    .board{margin-left:-24px;margin-right:-24px;padding:0 24px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">OBSERVABLE · 可观测性平台</div>
+    <h1>把三个月的排障记录，压成一条调用链。</h1>
+    <p class="sub">面向工程团队。接入 OTLP，日志、指标、追踪共用一套 schema。</p>
+  </header>
+
+  <div class="periodbar">
+    <button class="on">月付</button>
+    <button>年付</button>
+    <span class="save">年付 $10 /人/月，每席位每月省 $2</span>
+  </div>
+
+  <div class="board">
+  <table>
+    <thead>
+      <tr>
+        <th>三档对照</th>
+        <th><span class="nm">Free</span><span class="for">个人项目<br>验证接入</span></th>
+        <th class="rec-col"><span class="tagname">团队常用</span><span class="nm">Team</span><span class="for">2–30 人团队<br>共享告警与看板</span></th>
+        <th><span class="nm">Enterprise</span><span class="for">合规 / 私有化<br>有采购流程</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><th>席位上限</th><td>5</td><td class="rec-col"><b>不限</b></td><td><b>不限</b></td></tr>
+      <tr><th>日志保留</th><td>30 天</td><td class="rec-col"><b>90 天</b></td><td><b>可配置</b></td></tr>
+      <tr><th>追踪吞吐</th><td>50 万 span/月</td><td class="rec-col"><b>200 万 span/月</b></td><td><b>按量</b></td></tr>
+      <tr><th>自定义告警</th><td class="dim">—</td><td class="rec-col"><b>20 条</b></td><td><b>不限</b></td></tr>
+      <tr><th>共享看板</th><td class="dim">—</td><td class="rec-col"><b>✓</b></td><td><b>✓</b></td></tr>
+      <tr><th>SSO / SCIM</th><td class="dim">—</td><td class="rec-col dim">—</td><td><b>✓</b></td></tr>
+      <tr><th>审计日志</th><td class="dim">—</td><td class="rec-col dim">—</td><td><b>✓</b></td></tr>
+      <tr><th>私有化部署</th><td class="dim">—</td><td class="rec-col dim">—</td><td><b>✓</b></td></tr>
+      <tr><th>SLA</th><td class="dim">—</td><td class="rec-col dim">—</td><td><b>99.9%</b></td></tr>
+
+      <tr class="price-row">
+        <th>价格</th>
+        <td><div class="p">$0<span>/ 月</span></div></td>
+        <td class="rec-col"><div class="p">$12<span>/ 人 / 月</span></div></td>
+        <td><div class="p">按量<span>联系销售报价</span></div></td>
+      </tr>
+      <tr class="cta-row">
+        <th></th>
+        <td><a class="cta" href="#">开始使用</a></td>
+        <td class="rec-col"><a class="cta solid" href="#">开始 14 天试用</a></td>
+        <td><a class="cta" href="#">联系销售</a></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="foot">
+    <div><b>价格自 2026-01 起未调整</b>本页所有价格含税，可导出 PDF 账单用于报销。</div>
+    <div><b>可随时降级</b>降到 Free 后历史数据保留 30 天，不会立刻删除；超出吞吐不断流，按 $0.8 / 百万 span 计费。</div>
+  </div>
+
+  <section class="faq">
+    <h2>常见问题</h2>
+    <details><summary>席位怎么算？离职的人会占席位吗？</summary>
+      <p>按当月活跃账号计费。成员被移除后，下一个计费周期不再计入。</p></details>
+    <details><summary>支持哪些语言的 SDK？</summary>
+      <p>官方维护 Go、Java、Node、Python、Rust；其余语言用 OTLP 标准协议接入。</p></details>
+  </section>
+
+</div>
+</body>
+</html>

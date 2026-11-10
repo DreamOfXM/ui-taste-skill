@@ -1,8 +1,0 @@
-{
-  "name": "ui-taste-skill",
-  "description": "给 AI 编程助手用的 UI 设计 Skill：从需求与状态推导视觉层级和元素，比较整体关系，并在真实界面上验收。",
-  "version": "3.6.0",
-  "skills": [
-    "./"
-  ]
-}
