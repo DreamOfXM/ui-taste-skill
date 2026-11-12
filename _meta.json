@@ -2,7 +2,7 @@
   "name": "ui-taste-skill",
   "version": "0.3.1",
   "author": "DreamOfXM",
-  "description": "为界面做有主张的视觉设计。先排内容优先级（P0/P1/P2/P3，首屏只有一个 P0），再判产品品类取版式与排印默认家族，底面从产品界面截图采样，最后给不少于三套组合请用户确认；产出可对比的多稿与逐条写明依据和代价的决策账本。适用于落地页、仪表盘、表单、定价页的新设计、整体改版与评审，以及「顶多不丑」「像 AI 做的」「内容没有主次」这类说不出哪里不对的情况。",
+  "description": "为界面做有主张、连贯、有质感的视觉设计：先想清买家要判断什么，用一套统一的间距/字号/文案底子把一屏整体做连贯，再精修。管保底（不残、不丑、内容真实、节奏统一），靠范例与并排对照提高上限概率，不承诺保证产出好 UI。当用户要求设计/重做页面、落地页、仪表盘、表单、定价页，或说 UI 不好看/没质感/像 AI 做的/不惊艳/几版都长得一样/内容没主次/行间距不协调/按钮字体排版不对/要几个方案时使用；给了视觉原稿则忠实还原，局部精修只改受影响处。Use when designing or redesigning web UI, when the UI looks generic, AI-made or merely \"not ugly\", or when the user asks for content hierarchy, coherent rhythm, buyer-language copy, or several distinct directions. Not for backend logic or non-visual bug fixes.",
   "trigger_words": [
     "设计页面",
     "重做这个页面",

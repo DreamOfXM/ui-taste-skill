@@ -43,13 +43,13 @@
 
 ## 实拍样本：定价页的三种答案
 
-三张真实上线页，同一天、同一视口（1440）、同一渲染模式（`prefers-color-scheme: light`）抓取并**实测**。截图存在 `assets/refs/pricing/`，数值由 `scripts/probe.mjs` 从 DOM 读出。
+三张真实上线页，同一天、同一视口（1440）、同一渲染模式（`prefers-color-scheme: light`）抓取并**实测**。数值由 `scripts/probe.mjs` 从 DOM 读出；**截图未随本包分发**，下列为抓取时的实测值与关系描述。
 
-**每条观察后面标证据级别**（R1 截图 / R2 DOM 实测）。没标 R2 的数字一律不许引用进账本——见 `reference-intake.md`。
+**每条观察后面标证据级别**（R1 截图 / R2 DOM 实测）。没标 R2 的数字一律不许当作实测依据——见 `reference-intake.md`。
 
 ### ① Linear —— 1px 近不可见竖线，通高承担边界
 
-`assets/refs/pricing/linear-pricing.png` · 深色底 `rgb(8,9,10)`
+Linear · 深色底 `rgb(8,9,10)`
 
 - **V-a1（R2）** 四档 `grid`，列宽 **336px ×4**，每列 `padding: 0 32px`，**列间距 0**（32px 已含在 padding 内）。**首列无左边框，其余各 1px `rgba(255,255,255,0.05)`**，容器高 **551px = 整列通高**。
   边界由一条几乎看不见的竖线 + 严格共轴承担，**不是靠留白**。
@@ -62,7 +62,7 @@
 
 ### ② Ramp —— 1px 容器 + 3px 描边，同一手段的强度差
 
-`assets/refs/pricing/ramp-pricing.png` · 白底
+Ramp · 白底
 
 - **V-b1（R2）** 三档 `grid`，列宽 **421px ×3**，**gap 24px**，`padding: 40px 32px`，`radius: 8px`，透明底，**1px 描边**。推荐档（#1）**border 3px**，其余 1px。
   这是"同一手段的强度差"，不是新增一个手段 → 抽掉颜色后粗细差仍在，过「换灰」检验。
@@ -73,7 +73,7 @@
 
 ### ③ Raycast —— 价格是唯一主角
 
-`assets/refs/pricing/raycast-pricing.png` · 深色底 `rgb(7,8,10)`
+Raycast · 深色底 `rgb(7,8,10)`
 
 - **V-c1（R2）** 价格 **64px** w600；**除价格外全页无 ≥26px 文本** → 价格就是最大元素，没有任何东西与它竞争。
   成立条件：个人消费者正在比价，价格就是决策依据。放大价格是服务任务，不是失礼。
